@@ -11,10 +11,8 @@ void Farrar::call(bool visual)
 {
     
     std::cout << "Score: " << obtainScore() << '\n';
-    //obtainAlignment();
     if (visual){
-        // printAlignment();
-        // printDPMatrix();
+        printHMatrix();
     }
     
 }
@@ -39,34 +37,22 @@ void Farrar::buildProfile(){
         vec.clear();
     }
 
-
     for(char residue : alphabet)
     {
         std::vector<Vec> profile;
-
         profile.reserve(segLen);
-
-
         for(int i = 0; i < segLen; i++)
         {
-
             Vec scoreVec(stripe_width);
             for(int j = 0; j < stripe_width; j++)
             {
-
                 int idx = j * segLen + i;
-
-
                 if(idx >= s0.length())
                 {
                     scoreVec[j] = 0;
-                    continue;
                 }
 
-                scoreVec[j] = 
-                (s0[idx] == residue)
-                    ? match
-                    : mismatch;
+                scoreVec[j] = (s0[idx] == residue) ? match : mismatch;
             }
 
 
@@ -85,7 +71,6 @@ void Farrar::initMatrices(){
 
     segLen = (s0.length() + stripe_width - 1) / stripe_width;
 
-    // Allocate all striped vectors
     pvHStore.clear();
     pvHLoad.clear();
     pvE.clear();
@@ -94,7 +79,6 @@ void Farrar::initMatrices(){
     pvHLoad.resize(segLen, Vec(stripe_width));
     pvE.resize(segLen, Vec(stripe_width));
 
-    // Initialize H and E
     for (int i = 0; i < segLen; i++)
     {
         for (int j = 0; j < stripe_width; j++)
@@ -112,6 +96,7 @@ Vec Farrar::processColumn(int column)
     Vec vF(stripe_width, 0);
     Vec vMax(stripe_width, 0);
 
+    int16_t vHCarry = pvHStore[segLen - 1][stripe_width-1]; 
     Vec vH = pvHStore[segLen - 1].shift(0);
 
     pvHStore.swap(pvHLoad);
@@ -120,7 +105,7 @@ Vec Farrar::processColumn(int column)
 
     for (int j = 0; j < segLen; j++)
     {
-        vH = vH + vProfile[profileIndex][j];;
+        vH = vH + vProfile[profileIndex][j];
         vH = vH.max(pvE[j]);
 
         vH = vH.max(vF);
@@ -129,8 +114,6 @@ Vec Farrar::processColumn(int column)
         vMax = vMax.max(vH);
 
         pvHStore[j] = vH;
-
-        //Vec tmp = vH - gap_open;
 
         vH = vH + gap_open;
         pvE[j] = (pvE[j] + gap_ext);
@@ -141,26 +124,58 @@ Vec Farrar::processColumn(int column)
         vH = pvHLoad[j];
     }
     
-    //Lazy F
     vF = vF.shift(0);
     size_t j = 0;
     Vec temp = pvHStore[j] + gap_open;
+    int16_t vFCarry;
     while (vF.anyBiggerElement(temp))
     {
         pvHStore[j] = pvHStore[j].max(vF);
-        //vMax = vMax.max(pvHStore[j]);
+        vMax = vMax.max(pvHStore[j]);
 
         temp = pvHStore[j] + gap_open;
+
         j++;
         vF = vF + gap_ext;
+        char teste;
+
         if (j >= segLen)
         {
-            vF = vF.shift(0);
+            vFCarry = vF[vF.size()-1];
+            vF = vF.shift(vFCarry);
             j = 0;
         }
     }
     maxScore = std::max(maxScore,vMax.maxValue());
 
+    HHistory.push_back(pvHStore);
 
+    previousVH = vH;
     return vMax;
+}
+
+void Farrar::printHMatrix(){
+
+    std::cout << "\nH Matrix (striped)\n\n";
+
+    std::cout << "     ";
+    for (char c : s1)
+        std::cout << std::setw(4) << c;
+    std::cout << '\n';
+
+    for (size_t row = 0; row < s0.size(); row++)
+    {
+        std::cout << std::setw(4) << s0[row] << " ";
+
+        int seg = row % segLen;
+        int lane = row / segLen;
+
+        for (size_t col = 0; col < s1.size(); col++)
+        {
+            std::cout << std::setw(4)
+                    << HHistory[col][seg][lane];
+        }
+
+        std::cout << '\n';
+    }
 }

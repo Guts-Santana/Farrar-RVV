@@ -31,7 +31,7 @@ void Gotoh::printDPMatrix()
 void Gotoh::printMatrix(int** matrix){
     std::cout << std::setw(4) << " " << " ";
     std::cout << std::setw(4) << "-" << " ";
-    for (size_t i = 0; i < s0.length(); i++)
+    for (size_t i = 0; i < s1.length(); i++)
     {
         std::cout << std::setw(4) << s1[i] << " ";
     }
@@ -52,7 +52,7 @@ void Gotoh::printMatrix(int** matrix){
             }
             if (j>0)
             {
-            std::cout << std::setw(4) << matrix[i][j-1] << " ";
+                std::cout << std::setw(4) << matrix[i][j-1] << " ";
             }
 
         }

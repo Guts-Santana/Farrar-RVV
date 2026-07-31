@@ -1,5 +1,4 @@
 #include "Vec.hpp"
-
 #include <iostream>
 
 

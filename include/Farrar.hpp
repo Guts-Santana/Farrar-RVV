@@ -26,6 +26,10 @@ class Farrar
     std::vector<Vec> pvHLoad;
     std::vector<Vec> pvE;
 
+    std::vector<std::vector<Vec>> HHistory;
+
+    Vec previousVH;
+
     std::array<std::vector<Vec>,4> vProfile;
 
     const std::vector<char> alphabet = {
@@ -33,10 +37,6 @@ class Farrar
     };
 
     int segLen;
-
-
-
-
 
     public:
     Farrar(std::string s0, std::string s1) :  maxScore(0), s0(s0), s1(s1){
@@ -57,6 +57,8 @@ class Farrar
     int obtainScore();
 
     void call(bool visual);
+
+    void printHMatrix();
 
     inline int charToIndex(char c)
     {
