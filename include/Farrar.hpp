@@ -30,10 +30,10 @@ class Farrar
 
     Vec previousVH;
 
-    std::array<std::vector<Vec>,4> vProfile;
+    std::array<std::vector<Vec>,5> vProfile;
 
     const std::vector<char> alphabet = {
-        'A','C','G','T'
+        'A','C','G','T', 'N'
     };
 
     int segLen;
@@ -44,7 +44,9 @@ class Farrar
         this->segLen = (s0.length() + stripe_width - 1)/stripe_width;        
     }
 
-    ~Farrar(){}
+    ~Farrar(){
+        clearData();
+    }
 
     void setSequences(std::string s0, std::string s1);
 
@@ -80,10 +82,16 @@ class Farrar
             case 't':
                 return 3;
 
+            case 'N':
+            case 'n':
+                return 4;
+
             default:
                 throw std::runtime_error("Invalid nucleotide");
         }
     }
+
+    void clearData();
 };
 
 #endif

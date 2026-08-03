@@ -12,21 +12,21 @@ size_t Vec::size() {
 
 
 Vec Vec::operator+(Vec& other) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] + other[i];
     return result;
 }
 
 Vec Vec::operator-(Vec& other) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] - other[i];
     return result;
 }
 
 Vec Vec::operator*(Vec& other) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] * other[i];
     return result;
@@ -34,7 +34,7 @@ Vec Vec::operator*(Vec& other) {
 
 
 Vec Vec::operator<<(int n) {
-    Vec result(lanes.size(), 0);
+    Vec result;
     if (n < (int)lanes.size()) {
         for (size_t i = 0; i < lanes.size() - n; ++i)
             result[i + n] = lanes[i];
@@ -43,21 +43,21 @@ Vec Vec::operator<<(int n) {
 }
 
 Vec Vec::operator+(int16_t value) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] + value;
     return result;
 }
 
 Vec Vec::operator-(int16_t value) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] - value;
     return result;
 }
 
 Vec Vec::operator*(int16_t value) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = lanes[i] * value;
     return result;
@@ -65,7 +65,7 @@ Vec Vec::operator*(int16_t value) {
 
 Vec Vec::shift(int16_t carry)
 {
-    Vec result(lanes.size());
+    Vec result;
 
     result[0] = carry;
 
@@ -77,14 +77,14 @@ Vec Vec::shift(int16_t carry)
 
 
 Vec Vec::max(Vec& other) {
-    Vec result(lanes.size());
+    Vec result;
     for (size_t i = 0; i < lanes.size(); ++i)
         result[i] = std::max(lanes[i], other[i]);
     return result;
 }
 
 Vec Vec::max(int16_t value) {
-    Vec result(lanes.size());
+    Vec result;
 
     for (size_t i = 0; i < lanes.size(); i++)
         result[i] = std::max(lanes[i], value);

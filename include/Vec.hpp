@@ -8,11 +8,14 @@
 
 class Vec {
 private:
-    std::vector<int16_t> lanes;
+    std::array<int16_t, STRIPE_WIDTH> lanes;
 
 public:
-    Vec(size_t size = STRIPE_WIDTH, int initVal = 0) : lanes(size, initVal){}
-    Vec(std::vector<int16_t>& data) :lanes(data){}
+    Vec(int16_t value = 0){
+        lanes.fill(value);
+    }
+
+    Vec(std::array<int16_t, STRIPE_WIDTH>& data) :lanes(data){}
 
     int16_t& operator[](size_t i);
     size_t size();

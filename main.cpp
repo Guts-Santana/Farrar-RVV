@@ -3,6 +3,8 @@
 #include "NWAlgorithm.hpp"
 #include "Gotoh.hpp"
 #include "Farrar.hpp"
+#include "tests.hpp"
+#include "vectorial_call.hpp"
 
 
 int main(int argc, char *argv[])
@@ -33,6 +35,18 @@ int main(int argc, char *argv[])
         Farrar farrar(sequence0, sequence1);
         farrar.call(true);
     }
+    if (argv[1] == std::string("tests"))
+    {
+        testScore(false);
+    }
+
+    if (argv[1] == std::string("rvv"))
+    {
+        std::cout << isRiscv() << '\n';
+        std::cout << hasRISCVVectorExtension() << '\n';
+    }
+
+    
 
     return 0;
 }

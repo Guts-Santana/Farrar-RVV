@@ -42,7 +42,9 @@ class Gotoh
         }
     }
 
-    ~Gotoh(){}
+    ~Gotoh(){
+        clearData();
+    }
 
     void setSequences(std::string s0, std::string s1);
 
@@ -55,6 +57,8 @@ class Gotoh
     void printMatrix(int** matrix);
 
     void call(bool visual);
+
+    void clearData();
 };
 
 #endif

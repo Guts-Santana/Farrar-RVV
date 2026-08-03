@@ -93,10 +93,8 @@ void Farrar::initMatrices(){
 
 Vec Farrar::processColumn(int column)
 {
-    Vec vF(stripe_width, 0);
-    Vec vMax(stripe_width, 0);
-
-    int16_t vHCarry = pvHStore[segLen - 1][stripe_width-1]; 
+    Vec vF(0);
+    Vec vMax(0);
     Vec vH = pvHStore[segLen - 1].shift(0);
 
     pvHStore.swap(pvHLoad);
@@ -137,7 +135,6 @@ Vec Farrar::processColumn(int column)
 
         j++;
         vF = vF + gap_ext;
-        char teste;
 
         if (j >= segLen)
         {
@@ -177,5 +174,18 @@ void Farrar::printHMatrix(){
         }
 
         std::cout << '\n';
+    }
+}
+
+void Farrar::clearData(){
+    maxScore = 0;
+    pvHStore.clear();
+    pvHLoad.clear();
+    pvE.clear();
+    HHistory.clear();
+    previousVH = Vec();
+    for (auto &profileVec : vProfile)
+    {
+        profileVec.clear();
     }
 }
