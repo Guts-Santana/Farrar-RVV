@@ -1,13 +1,14 @@
 #include "Farrar.hpp"
 
-void Farrar::setSequences(std::string s0, std::string s1){
+template<typename Vec>
+void Farrar<Vec>::setSequences(std::string s0, std::string s1){
     this->s0 = s0;
     this->s1 = s1;
 }
 
 
-
-void Farrar::call(bool visual)
+template<typename Vec>
+void Farrar<Vec>::call(bool visual)
 {
     
     std::cout << "Score: " << obtainScore() << '\n';
@@ -17,7 +18,8 @@ void Farrar::call(bool visual)
     
 }
 
-int Farrar::obtainScore(){
+template<typename Vec>
+int Farrar<Vec>::obtainScore(){
 
     initMatrices();
     buildProfile();
@@ -31,7 +33,8 @@ int Farrar::obtainScore(){
     return maxScore;
 }
 
-void Farrar::buildProfile(){
+template<typename Vec>
+void Farrar<Vec>::buildProfile(){
 
     for (auto& vec : vProfile) {
         vec.clear();
@@ -66,7 +69,8 @@ void Farrar::buildProfile(){
 
 }
 
-void Farrar::initMatrices(){
+template<typename Vec>
+void Farrar<Vec>::initMatrices(){
     maxScore = 0;
 
     segLen = (s0.length() + stripe_width - 1) / stripe_width;
@@ -91,12 +95,11 @@ void Farrar::initMatrices(){
     }
 }
 
-Vec Farrar::processColumn(int column)
+template<typename Vec>
+Vec Farrar<Vec>::processColumn(int column)
 {
-    Vec vF(stripe_width, 0);
-    Vec vMax(stripe_width, 0);
-
-    int16_t vHCarry = pvHStore[segLen - 1][stripe_width-1]; 
+    Vec vF(0);
+    Vec vMax(0);
     Vec vH = pvHStore[segLen - 1].shift(0);
 
     pvHStore.swap(pvHLoad);
@@ -105,7 +108,12 @@ Vec Farrar::processColumn(int column)
 
     for (int j = 0; j < segLen; j++)
     {
-        vH = vH + vProfile[profileIndex][j];
+	if (profileIndex == -1){
+		vH = vH + mismatch;
+	}
+	else{
+       		vH = vH + vProfile[profileIndex][j];
+	}
         vH = vH.max(pvE[j]);
 
         vH = vH.max(vF);
@@ -137,7 +145,6 @@ Vec Farrar::processColumn(int column)
 
         j++;
         vF = vF + gap_ext;
-        char teste;
 
         if (j >= segLen)
         {
@@ -150,11 +157,12 @@ Vec Farrar::processColumn(int column)
 
     HHistory.push_back(pvHStore);
 
-    previousVH = vH;
+    // previousVH = vH;
     return vMax;
 }
 
-void Farrar::printHMatrix(){
+template<typename Vec>
+void Farrar<Vec>::printHMatrix(){
 
     std::cout << "\nH Matrix (striped)\n\n";
 
@@ -179,3 +187,20 @@ void Farrar::printHMatrix(){
         std::cout << '\n';
     }
 }
+
+template<typename Vec>
+void Farrar<Vec>::clearData(){
+    maxScore = 0;
+    pvHStore.clear();
+    pvHLoad.clear();
+    pvE.clear();
+    HHistory.clear();
+    // previousVH = ScalarVec();
+    for (auto &profileVec : vProfile)
+    {
+        profileVec.clear();
+    }
+}
+
+template class Farrar<ScalarVec>;
+template class Farrar<RvvVec>;

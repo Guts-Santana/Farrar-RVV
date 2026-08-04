@@ -117,3 +117,14 @@ int Gotoh::obtainScore(){
     }
     return maxScore;
 }
+
+void Gotoh::clearData(){
+    for (size_t i = 0; i <= s0.length(); i++) {
+        delete[] matrixH[i];
+        delete[] matrixE[i];
+        delete[] matrixF[i];
+    }
+    delete[] matrixH;
+    delete[] matrixE;
+    delete[] matrixF;
+}
