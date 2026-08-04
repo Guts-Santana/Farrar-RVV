@@ -8,8 +8,12 @@
 #include "constants.hpp"
 #include <vector>
 
-#include "Vec.hpp"
+#include "ScalarVec.hpp"
+#include "RvvVec.hpp"
 
+
+//The template can be ScalarVector(scalar way) or RvvVec(RVV SIMD)
+template<typename Vec>
 class Farrar
 {
     int gap_open = GAP_OPEN;
@@ -28,7 +32,7 @@ class Farrar
 
     std::vector<std::vector<Vec>> HHistory;
 
-    Vec previousVH;
+    // Vec previousVH;
 
     std::array<std::vector<Vec>,5> vProfile;
 
@@ -87,7 +91,12 @@ class Farrar
                 return 4;
 
             default:
-                throw std::runtime_error("Invalid nucleotide");
+		std::cerr << "Invalid character: "
+              << (int)(unsigned char)c
+              << " (0x"
+              << std::hex << (int)(unsigned char)c
+              << std::dec << ")\n";
+		return -1;
         }
     }
 

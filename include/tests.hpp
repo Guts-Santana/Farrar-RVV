@@ -16,3 +16,5 @@ std::string readFasta(const fs::path& fastaPath);
 std::vector<fs::path> getFastaFiles(const fs::path& folder);
 
 void testScore(bool visual);
+
+void testTime(bool visual);

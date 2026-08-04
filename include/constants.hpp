@@ -4,7 +4,7 @@
 #include <array>
 #include <string>
 #include <limits>
-
+#include <cstdint>
 
 constexpr int MATCH = 2;
 constexpr int MISMATCH = -3;

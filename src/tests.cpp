@@ -62,7 +62,7 @@ void testScore(bool visual){
         std::string seq1 = readFasta(fastaFiles[1]);
 
         std::cout << "Folder: " << folders[i] << '\n';
-        Farrar* farrarComparison = new Farrar(seq0, seq1);
+        Farrar<ScalarVec>* farrarComparison = new Farrar<ScalarVec>(seq0, seq1);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -86,6 +86,47 @@ void testScore(bool visual){
         std::cout << "Gotoh Function execution time: " << duration.count() << " ms\n";
 
 
+        
+        std::cout << '\n' << '\n';
+    }
+}
+
+
+void testTime(bool visual){
+    std::vector<std::string> folders = {"10k", "18k"};
+    for (size_t i = 0; i < folders.size(); i++)
+    {
+        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
+        std::string seq0 = readFasta(fastaFiles[0]);
+        std::string seq1 = readFasta(fastaFiles[1]);
+
+        std::cout << "Folder: " << folders[i] << '\n';
+        Farrar<ScalarVec>* farrarScalar = new Farrar<ScalarVec>(seq0, seq1);
+        auto start = std::chrono::high_resolution_clock::now();
+        farrarScalar->call(visual);
+        auto end = std::chrono::high_resolution_clock::now();
+        delete farrarScalar;
+        std::chrono::duration<double, std::milli> duration = end - start;
+        std::cout << "Scalar Farrar Function execution time: " << duration.count() << " ms\n";
+
+        Farrar<RvvVec>* farrarRVV = new Farrar<RvvVec>(seq0, seq1);
+        start = std::chrono::high_resolution_clock::now();
+        farrarRVV->call(visual);
+        end = std::chrono::high_resolution_clock::now();
+        delete farrarRVV;
+        duration = end - start;
+        std::cout << "Rvv Farrar Function execution time: " << duration.count() << " ms\n";
+
+        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
+
+        start = std::chrono::high_resolution_clock::now();
+
+        gotohComparison->call(visual);
+
+        end = std::chrono::high_resolution_clock::now();
+        delete gotohComparison;
+        duration = end - start;
+        std::cout << "Gotoh Function execution time: " << duration.count() << " ms\n";
         
         std::cout << '\n' << '\n';
     }
