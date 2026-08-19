@@ -72,18 +72,18 @@ void testScore(bool visual){
 
         delete farrarComparison;
         std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Farrar Function execution time: " << duration.count() << " ms\n";
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
 
         Gotoh* gotohComparison = new Gotoh(seq0, seq1);
 
         start = std::chrono::high_resolution_clock::now();
 
-        gotohComparison->call(visual);
+        gotohComparison->call();
 
         end = std::chrono::high_resolution_clock::now();
         delete gotohComparison;
         duration = end - start;
-        std::cout << "Gotoh Function execution time: " << duration.count() << " ms\n";
+        std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
 
 
         
@@ -93,7 +93,55 @@ void testScore(bool visual){
 
 
 void testTime(bool visual){
-    std::vector<std::string> folders = {"10k", "18k"};
+	std::ofstream log("/home/laico/Documents/Gustavo/Desenvolvimento/results.txt");
+	    if (!log) {
+        std::cerr << "Cannot open results.txt\n";
+        return;
+    }
+    std::vector<std::string> folders = {"10k", "18k", "30k", "50k"};
+    for (size_t i = 0; i < folders.size(); i++)
+    {
+        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
+        std::string seq0 = readFasta(fastaFiles[0]);
+        std::string seq1 = readFasta(fastaFiles[1]);
+
+        std::cout << "Folder: " << folders[i] << '\n';
+	log << "Folder: " << folders[i] << '\n';
+        Farrar<ScalarVec>* farrarScalar = new Farrar<ScalarVec>(seq0, seq1);
+        auto start = std::chrono::high_resolution_clock::now();
+        farrarScalar->call(visual);
+        auto end = std::chrono::high_resolution_clock::now();
+        delete farrarScalar;
+        std::chrono::duration<double, std::milli> duration = end - start;
+        std::cout << "Scalar Farrar Function execution time: " << duration.count()/1000 << " s\n";
+	log << "Scalar Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        Farrar<RvvVec>* farrarRVV = new Farrar<RvvVec>(seq0, seq1);
+        start = std::chrono::high_resolution_clock::now();
+        farrarRVV->call(visual);
+        end = std::chrono::high_resolution_clock::now();
+        delete farrarRVV;
+        duration = end - start;
+        std::cout << "Rvv Farrar Function execution time: " << duration.count()/1000 << " s\n";
+	log << "Rvv Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
+
+        start = std::chrono::high_resolution_clock::now();
+
+        gotohComparison->call();
+
+        end = std::chrono::high_resolution_clock::now();
+        delete gotohComparison;
+        duration = end - start;
+        std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
+        log << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+	log << '\n' << '\n';
+    }
+}
+
+
+void testFarrarTime(bool visual){
+    std::vector<std::string> folders = {"10k", "18k", "30k", "50k"};
     for (size_t i = 0; i < folders.size(); i++)
     {
         auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
@@ -107,7 +155,7 @@ void testTime(bool visual){
         auto end = std::chrono::high_resolution_clock::now();
         delete farrarScalar;
         std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Scalar Farrar Function execution time: " << duration.count() << " ms\n";
+        std::cout << "Scalar Farrar Function execution time: " << duration.count()/1000 << " ms\n";
 
         Farrar<RvvVec>* farrarRVV = new Farrar<RvvVec>(seq0, seq1);
         start = std::chrono::high_resolution_clock::now();
@@ -115,19 +163,8 @@ void testTime(bool visual){
         end = std::chrono::high_resolution_clock::now();
         delete farrarRVV;
         duration = end - start;
-        std::cout << "Rvv Farrar Function execution time: " << duration.count() << " ms\n";
+        std::cout << "Rvv Farrar Function execution time: " << duration.count()/1000 << " ms\n";
 
-        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
-
-        start = std::chrono::high_resolution_clock::now();
-
-        gotohComparison->call(visual);
-
-        end = std::chrono::high_resolution_clock::now();
-        delete gotohComparison;
-        duration = end - start;
-        std::cout << "Gotoh Function execution time: " << duration.count() << " ms\n";
-        
         std::cout << '\n' << '\n';
     }
 }

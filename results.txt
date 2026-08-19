@@ -1,0 +1,45 @@
+Folder: 10k
+Scalar Farrar Function execution time: 117.422 s
+Rvv Farrar Function execution time: 44.7446 s
+Gotoh Function execution time: 66.8157 s
+
+
+Folder: 18k
+Scalar Farrar Function execution time: 296.79 s
+Rvv Farrar Function execution time: 111.636 s
+Gotoh Function execution time: 230.129 s
+
+
+Folder: 30k
+Scalar Farrar Function execution time: 1636.06 s
+Rvv Farrar Function execution time: 642.296 s
+Gotoh Function execution time: 578.796 s
+
+
+Folder: 50k
+Scalar Farrar Function execution time: 2712.25 s
+Rvv Farrar Function execution time: 1016.45 s
+Gotoh Function execution time: 2401.67 s
+
+
+FarrarRvv - 16
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 20.3467 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 49.1862 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 299.127 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 451.142 s
+
+
