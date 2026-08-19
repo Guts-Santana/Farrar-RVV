@@ -42,11 +42,10 @@ void Farrar<Vec>::buildProfile(){
 
     for(char residue : alphabet)
     {
-        std::vector<Vec> profile;
-        profile.reserve(segLen);
+        std::vector<Vec> profile(segLen);
         for(int i = 0; i < segLen; i++)
         {
-            Vec scoreVec(stripe_width);
+            Vec scoreVec(0);
             for(int j = 0; j < stripe_width; j++)
             {
                 int idx = j * segLen + i;
@@ -54,15 +53,15 @@ void Farrar<Vec>::buildProfile(){
                 {
                     scoreVec[j] = 0;
                 }
-
+		else
                 scoreVec[j] = (s0[idx] == residue) ? match : mismatch;
             }
 
 
-            profile.push_back(scoreVec);
+            profile[i] = scoreVec;
             
         }
-        vProfile[charToIndex(residue)] = std::move(profile);
+        vProfile[charToIndex(residue)] = profile;
 
 
     }
@@ -79,9 +78,9 @@ void Farrar<Vec>::initMatrices(){
     pvHLoad.clear();
     pvE.clear();
 
-    pvHStore.resize(segLen, Vec(stripe_width));
-    pvHLoad.resize(segLen, Vec(stripe_width));
-    pvE.resize(segLen, Vec(stripe_width));
+    pvHStore.resize(segLen, Vec(0));
+    pvHLoad.resize(segLen, Vec(0));
+    pvE.resize(segLen, Vec(0));
 
     for (int i = 0; i < segLen; i++)
     {
@@ -154,8 +153,7 @@ Vec Farrar<Vec>::processColumn(int column)
         }
     }
     maxScore = std::max(maxScore,vMax.maxValue());
-
-    HHistory.push_back(pvHStore);
+    // HHistory.push_back(pvHStore);
 
     // previousVH = vH;
     return vMax;

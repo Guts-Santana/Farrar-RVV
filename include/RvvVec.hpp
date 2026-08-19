@@ -9,35 +9,26 @@ class RvvVec{
 
     private:
         std::array<int16_t, STRIPE_WIDTH> lanes;
-        static constexpr size_t VL = STRIPE_WIDTH;
+        size_t VL;
 
     public:
         RvvVec(int16_t value = 0){
             lanes.fill(value);
+            VL = __riscv_vsetvl_e16m1(STRIPE_WIDTH);
         }
 
-        RvvVec(std::array<int16_t, STRIPE_WIDTH> lanes) : lanes(lanes) {}
+        RvvVec(std::array<int16_t, STRIPE_WIDTH> lanes): lanes(lanes) {
+            VL = __riscv_vsetvl_e16m1(STRIPE_WIDTH);
+        }
 
         int16_t& operator[](size_t i);
         size_t size();
 
-        RvvVec operator+(RvvVec& other);
-        RvvVec operator-(RvvVec& other);
-        RvvVec operator*(RvvVec& other);
-
-        RvvVec operator+(int16_t value);
-        RvvVec operator-(int16_t value);
-        RvvVec operator*(int16_t value);
-        RvvVec shift(int16_t carry);
-
         void swap(RvvVec& other);
 
-        RvvVec max(RvvVec& other);
-        RvvVec max(int16_t value);
+        vint16m1_t load();
 
-        int16_t maxValue();
-
-        bool anyBiggerElement(RvvVec& other);
+        void store(vint16m1_t vec);
 
         void print();
 };

@@ -18,3 +18,6 @@ std::vector<fs::path> getFastaFiles(const fs::path& folder);
 void testScore(bool visual);
 
 void testTime(bool visual);
+
+
+void testFarrarTime(bool visual);

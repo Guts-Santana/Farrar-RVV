@@ -19,16 +19,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (argv[1] == std::string("nw"))
-    {
-        NWAlgorithm nw(sequence0, sequence1);
-        nw.call(true);
-    }
-
     if (argv[1] == std::string("gotoh"))
     {
         Gotoh gotoh(sequence0, sequence1);
-        gotoh.call(true);
+        gotoh.call();
     }
 
     if (argv[1] == std::string("farrar"))
@@ -48,7 +42,7 @@ int main(int argc, char *argv[])
         std::cout << hasRISCVVectorExtension() << '\n';
 
         Farrar<RvvVec> farrar(sequence0, sequence1);
-        farrar.call(true);
+        farrar.call(false);
     }
 
     
