@@ -42,4 +42,103 @@ Folder: 50k
 Score: 52
 Farrar Function execution time: 451.142 s
 
+VLEN 2:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 16.2721 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 27.1157 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 279.547 s/
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 248.364 s
+
+VLEN 4:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 14.9357 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 14.8814 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 284.931 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 138.522 s
+
+VLEN 8:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 18.6538 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 9.21764 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 335.206 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 85.0388 s
+
+Stripe: 16
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 21.3916 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 52.4145 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 308.446 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 476.73 s
+
+Stripe: 32
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 16.2833 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 27.2109 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 278.377 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 246.973 s
 

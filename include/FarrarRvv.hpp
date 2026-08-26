@@ -11,8 +11,7 @@
 #include "RvvVec.hpp"
 #include "RvvReg.hpp"
 
-
-//The template can be ScalarVector(scalar way) or RvvVec(RVV SIMD)
+template <typename VecType>
 class FarrarRvv
 {
     int gap_open = GAP_OPEN;
@@ -24,16 +23,14 @@ class FarrarRvv
     std::string s0;
     std::string s1;
 
-    int stripe_width = STRIPE_WIDTH;
-    std::vector<RvvVec>pvHStore;
-    std::vector<RvvVec>pvHLoad;
-    std::vector<RvvVec>pvE;
-
-    std::vector<std::vector<RvvVec>> HHistory;
+    int stripe_width;
+    std::vector<RvvVec<VecType>>pvHStore;
+    std::vector<RvvVec<VecType>>pvHLoad;
+    std::vector<RvvVec<VecType>>pvE;
 
     // Vec previousVH;
 
-    std::array<std::vector<RvvVec>,5> vProfile;
+    std::array<std::vector<RvvVec<VecType>>,5> vProfile;
 
     const std::vector<char> alphabet = {
         'A','C','G','T', 'N'
@@ -42,8 +39,7 @@ class FarrarRvv
     int segLen;
 
     public:
-    FarrarRvv(std::string s0, std::string s1) :  maxScore(0), s0(s0), s1(s1){
-
+    FarrarRvv(std::string s0, std::string s1, size_t stripe_width) :  maxScore(0), s0(s0), s1(s1), stripe_width(stripe_width){
         this->segLen = (s0.length() + stripe_width - 1)/stripe_width;        
     }
 
@@ -62,8 +58,6 @@ class FarrarRvv
     int obtainScore();
 
     void call(bool visual);
-
-    void printHMatrix();
 
     inline int charToIndex(char c)
     {
@@ -103,3 +97,4 @@ class FarrarRvv
 };
 
 #endif
+

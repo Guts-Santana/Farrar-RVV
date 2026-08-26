@@ -10,6 +10,7 @@
 
 #include "Gotoh.hpp"
 #include "Farrar.hpp"
+#include "FarrarRvv.hpp"
 
 
 namespace fs = std::filesystem;
@@ -93,49 +94,60 @@ void testScore(bool visual){
 
 
 void testTime(bool visual){
-	std::ofstream log("/home/laico/Documents/Gustavo/Desenvolvimento/results.txt");
-	    if (!log) {
-        std::cerr << "Cannot open results.txt\n";
-        return;
-    }
-    std::vector<std::string> folders = {"10k", "18k", "30k", "50k"};
+	std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
+    std::cout << "Stripe: " << STRIPE_WIDTH << '\n';
     for (size_t i = 0; i < folders.size(); i++)
     {
         auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
         std::string seq0 = readFasta(fastaFiles[0]);
         std::string seq1 = readFasta(fastaFiles[1]);
-
+        int score;
         std::cout << "Folder: " << folders[i] << '\n';
-	log << "Folder: " << folders[i] << '\n';
-        Farrar<ScalarVec>* farrarScalar = new Farrar<ScalarVec>(seq0, seq1);
-        auto start = std::chrono::high_resolution_clock::now();
-        farrarScalar->call(visual);
         auto end = std::chrono::high_resolution_clock::now();
-        delete farrarScalar;
+        auto start = std::chrono::high_resolution_clock::now();
+
+        switch (STRIPE_WIDTH) {
+            case 16: {
+                // LMUL = 1 (16 elements per vector register)
+                FarrarRvv<vint16m1_t> aligner(seq0, seq1, 16);
+                score = aligner.obtainScore();
+                end = std::chrono::high_resolution_clock::now();
+                aligner.clearData();
+                break;
+            }
+            case 32: {
+                // LMUL = 2 (32 elements per vector register group)
+                FarrarRvv<vint16m2_t> aligner(seq0, seq1, 32);
+                score = aligner.obtainScore();
+                end = std::chrono::high_resolution_clock::now();
+                aligner.clearData();
+                break;
+            }
+            case 64: {
+                // LMUL = 4 (64 elements per vector register group)
+                FarrarRvv<vint16m4_t> aligner(seq0, seq1, 64);
+                score = aligner.obtainScore();
+                end = std::chrono::high_resolution_clock::now();
+                aligner.clearData();
+                break;
+            }
+            case 128: {
+                // LMUL = 8 (128 elements per vector register group)
+                FarrarRvv<vint16m8_t> aligner(seq0, seq1, 128);
+                score = aligner.obtainScore();
+                end = std::chrono::high_resolution_clock::now();
+                aligner.clearData();
+                break;
+            }
+            default:
+                std::cerr << "Error: Unsupported stripe_width (" << STRIPE_WIDTH
+                        << "). Supported values: 16, 32, 64, 128.\n";
+                return;
+        }
         std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Scalar Farrar Function execution time: " << duration.count()/1000 << " s\n";
-	log << "Scalar Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        Farrar<RvvVec>* farrarRVV = new Farrar<RvvVec>(seq0, seq1);
-        start = std::chrono::high_resolution_clock::now();
-        farrarRVV->call(visual);
-        end = std::chrono::high_resolution_clock::now();
-        delete farrarRVV;
-        duration = end - start;
-        std::cout << "Rvv Farrar Function execution time: " << duration.count()/1000 << " s\n";
-	log << "Rvv Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
-
-        start = std::chrono::high_resolution_clock::now();
-
-        gotohComparison->call();
-
-        end = std::chrono::high_resolution_clock::now();
-        delete gotohComparison;
-        duration = end - start;
-        std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
-        log << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << "Score: " << score << '\n';
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
         std::cout << '\n' << '\n';
-	log << '\n' << '\n';
     }
 }
 
