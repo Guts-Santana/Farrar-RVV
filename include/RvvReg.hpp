@@ -55,11 +55,61 @@ class RvvReg{
     static ALWAYS_INLINE vint16m1_t shift(vint16m1_t a, int16_t carry) {
         return __riscv_vslide1up_vx_i16m1(a, carry, VL);
     }
-    // Zero-Memory-Access extraction of last lane!
+
     static ALWAYS_INLINE int16_t lastElement(vint16m1_t a) {
         vint16m1_t tmp = __riscv_vslidedown_vx_i16m1(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m1_i16(tmp);
     }
+
+    static ALWAYS_INLINE vint16m1_t set(int16_t value, vint16m1_t) {
+        return __riscv_vmv_v_x_i16m1(value, VL);
+    }
+
+    // =========================================================================
+    // VINT32
+    // =========================================================================
+
+    static ALWAYS_INLINE vint32m1_t add(vint32m1_t a, vint32m1_t b) {
+        return __riscv_vadd_vv_i32m1(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m1_t add(vint32m1_t a, int32_t value) {
+        return __riscv_vadd_vx_i32m1(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m1_t sub(vint32m1_t a, vint32m1_t b) {
+        return __riscv_vsub_vv_i32m1(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m1_t sub(vint32m1_t a, int32_t value) {
+        return __riscv_vsub_vx_i32m1(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m1_t max(vint32m1_t a, vint32m1_t b) {
+        return __riscv_vmax_vv_i32m1(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m1_t max(vint32m1_t a, int32_t value) {
+        return __riscv_vmax_vx_i32m1(a, value, VL);
+    }
+    static ALWAYS_INLINE int32_t maxValue(vint32m1_t a) {
+        vint32m1_t init = __riscv_vmv_s_x_i32m1(INT32_MIN, 1);
+        vint32m1_t red  = __riscv_vredmax_vs_i32m1_i32m1(a, init, VL);
+        return __riscv_vmv_x_s_i32m1_i32(red);
+    }
+    static ALWAYS_INLINE bool anyBiggerElement(vint32m1_t a, vint32m1_t b) {
+        vbool32_t mask = __riscv_vmsgt_vv_i32m1_b32(a, b, VL);
+        return __riscv_vcpop_m_b32(mask, VL) > 0;
+    }
+    static ALWAYS_INLINE vint32m1_t shift(vint32m1_t a, int32_t carry) {
+        return __riscv_vslide1up_vx_i32m1(a, carry, VL);
+    }
+
+    static ALWAYS_INLINE int32_t lastElement(vint32m1_t a) {
+        vint32m1_t tmp = __riscv_vslidedown_vx_i32m1(a, VL - 1, VL);
+        return __riscv_vmv_x_s_i32m1_i32(tmp);
+    }
+
+    static ALWAYS_INLINE vint32m1_t set(int32_t value, vint32m1_t) {
+        return __riscv_vmv_v_x_i32m1(value, VL);
+    }
+
+
 
     // =========================================================================
     // LMUL = 2 (m2)
@@ -99,6 +149,53 @@ class RvvReg{
         vint16m2_t tmp = __riscv_vslidedown_vx_i16m2(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m2_i16(tmp);
     }
+    static ALWAYS_INLINE vint16m2_t set(int16_t value, vint16m2_t) {
+        return __riscv_vmv_v_x_i16m2(value, VL);
+    }
+
+    // =========================================================================
+    // VINT32
+    // =========================================================================
+
+    static ALWAYS_INLINE vint32m2_t add(vint32m2_t a, vint32m2_t b) {
+        return __riscv_vadd_vv_i32m2(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m2_t add(vint32m2_t a, int32_t value) {
+        return __riscv_vadd_vx_i32m2(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m2_t sub(vint32m2_t a, vint32m2_t b) {
+        return __riscv_vsub_vv_i32m2(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m2_t sub(vint32m2_t a, int32_t value) {
+        return __riscv_vsub_vx_i32m2(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m2_t max(vint32m2_t a, vint32m2_t b) {
+        return __riscv_vmax_vv_i32m2(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m2_t max(vint32m2_t a, int32_t value) {
+        return __riscv_vmax_vx_i32m2(a, value, VL);
+    }
+    static ALWAYS_INLINE int32_t maxValue(vint32m2_t a) {
+        vint32m1_t init = __riscv_vmv_s_x_i32m1(INT32_MIN, 1);
+        vint32m1_t red  = __riscv_vredmax_vs_i32m2_i32m1(a, init, VL);
+        return __riscv_vmv_x_s_i32m1_i32(red);
+    }
+    static ALWAYS_INLINE bool anyBiggerElement(vint32m2_t a, vint32m2_t b) {
+        vbool16_t mask = __riscv_vmsgt_vv_i32m2_b16(a, b, VL);
+        return __riscv_vcpop_m_b16(mask, VL) > 0;
+    }
+    static ALWAYS_INLINE vint32m2_t shift(vint32m2_t a, int32_t carry) {
+        return __riscv_vslide1up_vx_i32m2(a, carry, VL);
+    }
+
+    static ALWAYS_INLINE int32_t lastElement(vint32m2_t a) {
+        vint32m2_t tmp = __riscv_vslidedown_vx_i32m2(a, VL - 1, VL);
+        return __riscv_vmv_x_s_i32m2_i32(tmp);
+    }
+
+    static ALWAYS_INLINE vint32m2_t set(int32_t value, vint32m2_t) {
+        return __riscv_vmv_v_x_i32m2(value, VL);
+    }
 
     // =========================================================================
     // LMUL = 4 (m4)
@@ -131,6 +228,53 @@ class RvvReg{
     static ALWAYS_INLINE int16_t lastElement(vint16m4_t a) {
         vint16m4_t tmp = __riscv_vslidedown_vx_i16m4(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m4_i16(tmp);
+    }
+    static ALWAYS_INLINE vint16m4_t set(int16_t value, vint16m4_t) {
+        return __riscv_vmv_v_x_i16m4(value, VL);
+    }
+
+    // =========================================================================
+    // VINT32
+    // =========================================================================
+
+    static ALWAYS_INLINE vint32m4_t add(vint32m4_t a, vint32m4_t b) {
+        return __riscv_vadd_vv_i32m4(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m4_t add(vint32m4_t a, int32_t value) {
+        return __riscv_vadd_vx_i32m4(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m4_t sub(vint32m4_t a, vint32m4_t b) {
+        return __riscv_vsub_vv_i32m4(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m4_t sub(vint32m4_t a, int32_t value) {
+        return __riscv_vsub_vx_i32m4(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m4_t max(vint32m4_t a, vint32m4_t b) {
+        return __riscv_vmax_vv_i32m4(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m4_t max(vint32m4_t a, int32_t value) {
+        return __riscv_vmax_vx_i32m4(a, value, VL);
+    }
+    static ALWAYS_INLINE int32_t maxValue(vint32m4_t a) {
+        vint32m1_t init = __riscv_vmv_s_x_i32m1(INT32_MIN, 1);
+        vint32m1_t red  = __riscv_vredmax_vs_i32m4_i32m1(a, init, VL);
+        return __riscv_vmv_x_s_i32m1_i32(red);
+    }
+    static ALWAYS_INLINE bool anyBiggerElement(vint32m4_t a, vint32m4_t b) {
+        vbool8_t mask = __riscv_vmsgt_vv_i32m4_b8(a, b, VL);
+        return __riscv_vcpop_m_b8(mask, VL) > 0;
+    }
+    static ALWAYS_INLINE vint32m4_t shift(vint32m4_t a, int32_t carry) {
+        return __riscv_vslide1up_vx_i32m4(a, carry, VL);
+    }
+
+    static ALWAYS_INLINE int32_t lastElement(vint32m4_t a) {
+        vint32m4_t tmp = __riscv_vslidedown_vx_i32m4(a, VL - 1, VL);
+        return __riscv_vmv_x_s_i32m4_i32(tmp);
+    }
+
+    static ALWAYS_INLINE vint32m4_t set(int32_t value, vint32m4_t) {
+        return __riscv_vmv_v_x_i32m4(value, VL);
     }
 
     // =========================================================================
@@ -165,6 +309,55 @@ class RvvReg{
         vint16m8_t tmp = __riscv_vslidedown_vx_i16m8(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m8_i16(tmp);
     }
+    static ALWAYS_INLINE vint16m8_t set(int16_t value, vint16m8_t) {
+        return __riscv_vmv_v_x_i16m8(value, VL);
+    }
+
+    // =========================================================================
+    // VINT32
+    // =========================================================================
+
+    static ALWAYS_INLINE vint32m8_t add(vint32m8_t a, vint32m8_t b) {
+        return __riscv_vadd_vv_i32m8(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m8_t add(vint32m8_t a, int32_t value) {
+        return __riscv_vadd_vx_i32m8(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m8_t sub(vint32m8_t a, vint32m8_t b) {
+        return __riscv_vsub_vv_i32m8(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m8_t sub(vint32m8_t a, int32_t value) {
+        return __riscv_vsub_vx_i32m8(a, value, VL);
+    }
+    static ALWAYS_INLINE vint32m8_t max(vint32m8_t a, vint32m8_t b) {
+        return __riscv_vmax_vv_i32m8(a, b, VL);
+    }
+    static ALWAYS_INLINE vint32m8_t max(vint32m8_t a, int32_t value) {
+        return __riscv_vmax_vx_i32m8(a, value, VL);
+    }
+    static ALWAYS_INLINE int32_t maxValue(vint32m8_t a) {
+        vint32m1_t init = __riscv_vmv_s_x_i32m1(INT32_MIN, 1);
+        vint32m1_t red  = __riscv_vredmax_vs_i32m8_i32m1(a, init, VL);
+        return __riscv_vmv_x_s_i32m1_i32(red);
+    }
+    static ALWAYS_INLINE bool anyBiggerElement(vint32m8_t a, vint32m8_t b) {
+        vbool4_t mask = __riscv_vmsgt_vv_i32m8_b4(a, b, VL);
+        return __riscv_vcpop_m_b4(mask, VL) > 0;
+    }
+    static ALWAYS_INLINE vint32m8_t shift(vint32m8_t a, int32_t carry) {
+        return __riscv_vslide1up_vx_i32m8(a, carry, VL);
+    }
+
+    static ALWAYS_INLINE int32_t lastElement(vint32m8_t a) {
+        vint32m8_t tmp = __riscv_vslidedown_vx_i32m8(a, VL - 1, VL);
+        return __riscv_vmv_x_s_i32m8_i32(tmp);
+    }
+
+    static ALWAYS_INLINE vint32m8_t set(int32_t value, vint32m8_t) {
+        return __riscv_vmv_v_x_i32m8(value, VL);
+    }
+    
 };
 
 #endif
+

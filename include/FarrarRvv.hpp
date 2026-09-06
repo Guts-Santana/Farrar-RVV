@@ -19,18 +19,16 @@ class FarrarRvv
     int match = MATCH;
     int mismatch = MISMATCH;
 
-    int16_t maxScore; 
+    int maxScore; 
     std::string s0;
     std::string s1;
 
-    int stripe_width;
-    std::vector<RvvVec<VecType>>pvHStore;
-    std::vector<RvvVec<VecType>>pvHLoad;
-    std::vector<RvvVec<VecType>>pvE;
+    size_t stripe_width;
+    RvvVec<VecType>* pvHStore = nullptr;
+    RvvVec<VecType>* pvHLoad  = nullptr;
+    RvvVec<VecType>* pvE      = nullptr;
 
-    // Vec previousVH;
-
-    std::array<std::vector<RvvVec<VecType>>,5> vProfile;
+    RvvVec<VecType>* vProfile = nullptr;
 
     const std::vector<char> alphabet = {
         'A','C','G','T', 'N'
@@ -53,7 +51,7 @@ class FarrarRvv
 
     void initMatrices();
 
-    int16_t processColumn(int column);
+    int processColumn(int column);
 
     int obtainScore();
 
@@ -97,4 +95,5 @@ class FarrarRvv
 };
 
 #endif
+
 

@@ -8,10 +8,6 @@
 
 #include "tests.hpp"
 
-#include "Gotoh.hpp"
-#include "Farrar.hpp"
-#include "FarrarRvv.hpp"
-
 
 namespace fs = std::filesystem;
 
@@ -53,130 +49,141 @@ std::vector<fs::path> getFastaFiles(const fs::path& folder)
 }
 
 
-
-void testScore(bool visual){
-    std::vector<std::string> folders = {"10k", "18k"};
+void testTimeInt16(){
+    std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
+        std::cout << "INT16: " << '\n';
     for (size_t i = 0; i < folders.size(); i++)
     {
         auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
         std::string seq0 = readFasta(fastaFiles[0]);
         std::string seq1 = readFasta(fastaFiles[1]);
-
+	    int score;
         std::cout << "Folder: " << folders[i] << '\n';
-        Farrar<ScalarVec>* farrarComparison = new Farrar<ScalarVec>(seq0, seq1);
-
+        auto end = std::chrono::high_resolution_clock::now();
         auto start = std::chrono::high_resolution_clock::now();
 
-        farrarComparison->call(visual);
-
-        auto end = std::chrono::high_resolution_clock::now();
-
-        delete farrarComparison;
-        std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-
-        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
-
+        // LMUL = 1 (16 elements per vector register)
+        std::cout << "LMUL: 1" << '\n';
         start = std::chrono::high_resolution_clock::now();
-
-        gotohComparison->call();
-
+        FarrarRvv<vint16m1_t> alignerm1(seq0, seq1, 16);
+        score = alignerm1.obtainScore();
         end = std::chrono::high_resolution_clock::now();
-        delete gotohComparison;
-        duration = end - start;
-        std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
+        alignerm1.clearData();
 
-
-        
-        std::cout << '\n' << '\n';
-    }
-}
-
-
-void testTime(bool visual){
-	std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
-    std::cout << "Stripe: " << STRIPE_WIDTH << '\n';
-    for (size_t i = 0; i < folders.size(); i++)
-    {
-        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
-        std::string seq0 = readFasta(fastaFiles[0]);
-        std::string seq1 = readFasta(fastaFiles[1]);
-        int score;
-        std::cout << "Folder: " << folders[i] << '\n';
-        auto end = std::chrono::high_resolution_clock::now();
-        auto start = std::chrono::high_resolution_clock::now();
-
-        switch (STRIPE_WIDTH) {
-            case 16: {
-                // LMUL = 1 (16 elements per vector register)
-                FarrarRvv<vint16m1_t> aligner(seq0, seq1, 16);
-                score = aligner.obtainScore();
-                end = std::chrono::high_resolution_clock::now();
-                aligner.clearData();
-                break;
-            }
-            case 32: {
-                // LMUL = 2 (32 elements per vector register group)
-                FarrarRvv<vint16m2_t> aligner(seq0, seq1, 32);
-                score = aligner.obtainScore();
-                end = std::chrono::high_resolution_clock::now();
-                aligner.clearData();
-                break;
-            }
-            case 64: {
-                // LMUL = 4 (64 elements per vector register group)
-                FarrarRvv<vint16m4_t> aligner(seq0, seq1, 64);
-                score = aligner.obtainScore();
-                end = std::chrono::high_resolution_clock::now();
-                aligner.clearData();
-                break;
-            }
-            case 128: {
-                // LMUL = 8 (128 elements per vector register group)
-                FarrarRvv<vint16m8_t> aligner(seq0, seq1, 128);
-                score = aligner.obtainScore();
-                end = std::chrono::high_resolution_clock::now();
-                aligner.clearData();
-                break;
-            }
-            default:
-                std::cerr << "Error: Unsupported stripe_width (" << STRIPE_WIDTH
-                        << "). Supported values: 16, 32, 64, 128.\n";
-                return;
-        }
         std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Score: " << score << '\n';
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 2 (32 elements per vector register group)
+        std::cout << "LMUL: 2" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint16m2_t> alignerm2(seq0, seq1, 32);
+        score = alignerm2.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm2.clearData();
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 4 (64 elements per vector register group)
+        std::cout << "LMUL: 4" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint16m4_t> alignerm4(seq0, seq1, 64);
+        score = alignerm4.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm4.clearData();
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 8 (128 elements per vector register group)
+        std::cout << "LMUL: 8" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint16m8_t> alignerm8(seq0, seq1, 128);
+        score = alignerm8.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm8.clearData();
+
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
         std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
         std::cout << '\n' << '\n';
     }
 }
 
-
-void testFarrarTime(bool visual){
-    std::vector<std::string> folders = {"10k", "18k", "30k", "50k"};
+void testTimeInt32(){
+    std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
+        std::cout << "INT32: " << '\n';
     for (size_t i = 0; i < folders.size(); i++)
     {
         auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
         std::string seq0 = readFasta(fastaFiles[0]);
         std::string seq1 = readFasta(fastaFiles[1]);
-
+	    int score;
         std::cout << "Folder: " << folders[i] << '\n';
-        Farrar<ScalarVec>* farrarScalar = new Farrar<ScalarVec>(seq0, seq1);
-        auto start = std::chrono::high_resolution_clock::now();
-        farrarScalar->call(visual);
         auto end = std::chrono::high_resolution_clock::now();
-        delete farrarScalar;
-        std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Scalar Farrar Function execution time: " << duration.count()/1000 << " ms\n";
+        auto start = std::chrono::high_resolution_clock::now();
 
-        Farrar<RvvVec>* farrarRVV = new Farrar<RvvVec>(seq0, seq1);
+        // LMUL = 1 (16 elements per vector register)
+        std::cout << "LMUL: 1" << '\n';
         start = std::chrono::high_resolution_clock::now();
-        farrarRVV->call(visual);
+        FarrarRvv<vint32m1_t> alignerm1(seq0, seq1, 8);
+        score = alignerm1.obtainScore();
         end = std::chrono::high_resolution_clock::now();
-        delete farrarRVV;
-        duration = end - start;
-        std::cout << "Rvv Farrar Function execution time: " << duration.count()/1000 << " ms\n";
+        alignerm1.clearData();
 
+        std::chrono::duration<double, std::milli> duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 2 (32 elements per vector register group)
+        std::cout << "LMUL: 2" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint32m2_t> alignerm2(seq0, seq1, 16);
+        score = alignerm2.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm2.clearData();
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 4 (64 elements per vector register group)
+        std::cout << "LMUL: 4" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint32m4_t> alignerm4(seq0, seq1, 32);
+        score = alignerm4.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm4.clearData();
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+
+        // LMUL = 8 (128 elements per vector register group)
+        std::cout << "LMUL: 8" << '\n';
+        start = std::chrono::high_resolution_clock::now();
+        FarrarRvv<vint32m8_t> alignerm8(seq0, seq1, 64);
+        score = alignerm8.obtainScore();
+        end = std::chrono::high_resolution_clock::now();
+        alignerm8.clearData();
+
+
+        duration = end - start;
+	    std::cout << "Score: " << score << '\n'; 
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
         std::cout << '\n' << '\n';
     }
 }
+
+
+
