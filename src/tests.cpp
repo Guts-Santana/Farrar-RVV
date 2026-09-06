@@ -185,5 +185,39 @@ void testTimeInt32(){
     }
 }
 
+void testScalar(){
+    std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
+        std::cout << "Scalar Way: " << '\n';
+    for (size_t i = 0; i < folders.size(); i++)
+    for (size_t i = 0; i < folders.size(); i++)
+    {
+        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
+        std::string seq0 = readFasta(fastaFiles[0]);
+        std::string seq1 = readFasta(fastaFiles[1]);
 
+        std::cout << "Folder: " << folders[i] << '\n';
+        Farrar<ScalarVec>* farrarComparison = new Farrar<ScalarVec>(seq0, seq1);
 
+        auto start = std::chrono::high_resolution_clock::now();
+
+        farrarComparison->call();
+
+        auto end = std::chrono::high_resolution_clock::now();
+
+        delete farrarComparison;
+        std::chrono::duration<double, std::milli> duration = end - start;
+        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
+
+        Gotoh* gotohComparison = new Gotoh(seq0, seq1);
+
+        start = std::chrono::high_resolution_clock::now();
+
+        gotohComparison->call();
+
+        end = std::chrono::high_resolution_clock::now();
+        delete gotohComparison;
+        duration = end - start;
+        std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
+        std::cout << '\n' << '\n';
+    }
+}

@@ -1,5 +1,5 @@
-#ifndef RVV_REG_HPP
-#define RVV_REG_HPP
+#ifndef RVV_OPS_HPP
+#define RVV_OPS_HPP
 
 #include "constants.hpp"
 #include <riscv_vector.h>
@@ -7,7 +7,7 @@
 
 #define ALWAYS_INLINE __attribute__((always_inline)) inline
 
-class RvvReg{
+class RvvOps{
     private:
         static size_t VL;
 

@@ -8,13 +8,10 @@ void Farrar<Vec>::setSequences(std::string s0, std::string s1){
 
 
 template<typename Vec>
-void Farrar<Vec>::call(bool visual)
+void Farrar<Vec>::call()
 {
     
     std::cout << "Score: " << obtainScore() << '\n';
-    if (visual){
-        printHMatrix();
-    }
     
 }
 
@@ -201,4 +198,3 @@ void Farrar<Vec>::clearData(){
 }
 
 template class Farrar<ScalarVec>;
-template class Farrar<RvvVec>;

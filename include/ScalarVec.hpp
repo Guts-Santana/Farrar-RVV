@@ -5,7 +5,6 @@
 #include <algorithm>
 #include "constants.hpp"
 #include <string>
-#include "vectorial_call.hpp"
 
 class ScalarVec {
 private:

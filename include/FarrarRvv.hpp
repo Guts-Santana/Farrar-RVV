@@ -8,8 +8,8 @@
 #include "constants.hpp"
 #include <vector>
 
-#include "RvvVec.hpp"
-#include "RvvReg.hpp"
+#include "RvvBuffer.hpp"
+#include "RvvOps.hpp"
 
 template <typename VecType>
 class FarrarRvv
@@ -24,11 +24,11 @@ class FarrarRvv
     std::string s1;
 
     size_t stripe_width;
-    RvvVec<VecType>* pvHStore = nullptr;
-    RvvVec<VecType>* pvHLoad  = nullptr;
-    RvvVec<VecType>* pvE      = nullptr;
+    RvvBuffer<VecType>* pvHStore = nullptr;
+    RvvBuffer<VecType>* pvHLoad  = nullptr;
+    RvvBuffer<VecType>* pvE      = nullptr;
 
-    RvvVec<VecType>* vProfile = nullptr;
+    RvvBuffer<VecType>* vProfile = nullptr;
 
     const std::vector<char> alphabet = {
         'A','C','G','T', 'N'

@@ -9,10 +9,9 @@
 #include <vector>
 
 #include "ScalarVec.hpp"
-#include "RvvVec.hpp"
 
 
-//The template can be ScalarVector(scalar way) or RvvVec(RVV SIMD)
+//The template can be ScalarVector(scalar way)
 template<typename Vec>
 class Farrar
 {
@@ -62,7 +61,7 @@ class Farrar
 
     int obtainScore();
 
-    void call(bool visual);
+    void call();
 
     void printHMatrix();
 

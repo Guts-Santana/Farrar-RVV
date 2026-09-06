@@ -7,6 +7,8 @@
 #include <sys/resource.h>
 
 #include "FarrarRvv.hpp"
+#include "Gotoh.hpp"
+#include "Farrar.hpp"
 
 namespace fs = std::filesystem;
 
@@ -17,5 +19,7 @@ std::vector<fs::path> getFastaFiles(const fs::path& folder);
 void testTimeInt16();
 
 void testTimeInt32();
+
+void testScalar();
 
 

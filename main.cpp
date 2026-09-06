@@ -4,9 +4,7 @@
 #include "Gotoh.hpp"
 #include "Farrar.hpp"
 #include "tests.hpp"
-#include "vectorial_call.hpp"
 #include "ScalarVec.hpp"
-#include "RvvVec.hpp"
 
 
 int main(int argc, char *argv[])
@@ -29,20 +27,18 @@ int main(int argc, char *argv[])
     {
 
         Farrar<ScalarVec> farrar(sequence0, sequence1);
-        farrar.call(true);
+        farrar.call();
     }
-    if (argv[1] == std::string("tests"))
+    if (argv[1] == std::string("scalar"))
     {
-        testTime(false);
+        testScalar();
     }
 
     if (argv[1] == std::string("rvv"))
     {
-        std::cout << isRiscv() << '\n';
-        std::cout << hasRISCVVectorExtension() << '\n';
+        testTimeInt16();
+        testTimeInt32();
 
-        Farrar<RvvVec> farrar(sequence0, sequence1);
-        farrar.call(false);
     }
 
     

@@ -1,6 +1,6 @@
 #include "FarrarRvv.hpp"
 
-size_t RvvReg::VL = 16;
+size_t RvvOps::VL = 16;
 
 template <typename VecType>
 void FarrarRvv<VecType>::setSequences(std::string s0, std::string s1){
@@ -22,7 +22,7 @@ void FarrarRvv<VecType>::call(bool visual)
 template <typename VecType>
 int FarrarRvv<VecType>::obtainScore(){
 
-    RvvReg::setVL(stripe_width);
+    RvvOps::setVL(stripe_width);
     initMatrices();
     buildProfile();
     for (int i = 0; i < s1.length(); i++)
@@ -41,10 +41,10 @@ void FarrarRvv<VecType>::buildProfile(){
         free(vProfile);
     }
 
-    posix_memalign((void**)&vProfile, 64, total_blocks * sizeof(RvvVec<VecType>));
+    posix_memalign((void**)&vProfile, 64, total_blocks * sizeof(RvvBuffer<VecType>));
 
     for (size_t k = 0; k < total_blocks; ++k) {
-        new (&vProfile[k]) RvvVec<VecType>(stripe_width, 0);
+        new (&vProfile[k]) RvvBuffer<VecType>(stripe_width, 0);
     }
 
     for (char residue : alphabet) {
@@ -54,7 +54,7 @@ void FarrarRvv<VecType>::buildProfile(){
         size_t baseOffset = static_cast<size_t>(resIdx) * segLen;
 
         for (size_t i = 0; i < segLen; i++) {
-            RvvVec<VecType> scoreVec(stripe_width, 0);
+            RvvBuffer<VecType> scoreVec(stripe_width, 0);
             for (size_t j = 0; j < stripe_width; j++) {
                 size_t idx = j * segLen + i;
                 scoreVec[j] = (idx < s0.length() && s0[idx] == residue) ? match : mismatch;
@@ -70,14 +70,14 @@ void FarrarRvv<VecType>::initMatrices(){
 
     clearData();
 
-    posix_memalign((void**)&pvHStore, 64, segLen * sizeof(RvvVec<VecType>));
-    posix_memalign((void**)&pvHLoad,  64, segLen * sizeof(RvvVec<VecType>));
-    posix_memalign((void**)&pvE,      64, segLen * sizeof(RvvVec<VecType>));
+    posix_memalign((void**)&pvHStore, 64, segLen * sizeof(RvvBuffer<VecType>));
+    posix_memalign((void**)&pvHLoad,  64, segLen * sizeof(RvvBuffer<VecType>));
+    posix_memalign((void**)&pvE,      64, segLen * sizeof(RvvBuffer<VecType>));
 
     for (size_t j = 0; j < segLen; ++j) {
-        new (&pvHStore[j]) RvvVec<VecType>(stripe_width, 0);
-        new (&pvHLoad[j])  RvvVec<VecType>(stripe_width, 0);
-        new (&pvE[j])      RvvVec<VecType>(stripe_width, 0);
+        new (&pvHStore[j]) RvvBuffer<VecType>(stripe_width, 0);
+        new (&pvHLoad[j])  RvvBuffer<VecType>(stripe_width, 0);
+        new (&pvE[j])      RvvBuffer<VecType>(stripe_width, 0);
     }
 }
 
@@ -86,12 +86,12 @@ template <typename VecType>
 int FarrarRvv<VecType>::processColumn(int column)
 {
     VecType dummy;
-    VecType vF = RvvReg::set(0, dummy);
+    VecType vF = RvvOps::set(0, dummy);
     VecType vE;
-    VecType vMax = RvvReg::set(0, dummy);
+    VecType vMax = RvvOps::set(0, dummy);
     VecType vH = pvHStore[segLen - 1].load();
     VecType vHStore; 
-    vH = RvvReg::shift(vH,0);
+    vH = RvvOps::shift(vH,0);
 
     VecType vProfileTemp;
 
@@ -104,56 +104,56 @@ int FarrarRvv<VecType>::processColumn(int column)
     for (int j = 0; j < segLen; j++)
     {
 	if (profileIndex == -1){
-		vH = RvvReg::add(vH,mismatch);
+		vH = RvvOps::add(vH,mismatch);
 	}
 	else{
         
         vProfileTemp = vProfile[baseIndex + j].load();
-       	vH = RvvReg::add(vH, vProfileTemp);
+       	vH = RvvOps::add(vH, vProfileTemp);
 	}
         vE = pvE[j].load();
 
-        vH = RvvReg::max(vH,vE);
+        vH = RvvOps::max(vH,vE);
 
-        vH = RvvReg::max(vH,vF);
-        vH = RvvReg::max(vH,0);
+        vH = RvvOps::max(vH,vF);
+        vH = RvvOps::max(vH,0);
 
-        vMax = RvvReg::max(vMax,vH);
+        vMax = RvvOps::max(vMax,vH);
 
         pvHStore[j].store(vH);
 
-        vH = RvvReg::add(vH,gap_open);
-        vE = RvvReg::add(vE,gap_ext);
-        vE = RvvReg::max(vE,vH);
+        vH = RvvOps::add(vH,gap_open);
+        vE = RvvOps::add(vE,gap_ext);
+        vE = RvvOps::max(vE,vH);
         pvE[j].store(vE);
 
-        vF = RvvReg::add(vF,gap_ext);
-        vF = RvvReg::max(vF,vH);
+        vF = RvvOps::add(vF,gap_ext);
+        vF = RvvOps::max(vF,vH);
         vH = pvHLoad[j].load();
     }
     
-    vF = RvvReg::shift(vF, 0);
+    vF = RvvOps::shift(vF, 0);
     size_t j = 0;
     vHStore = pvHStore[j].load();
     int vFCarry;
-    while (RvvReg::anyBiggerElement(vF, RvvReg::add(vHStore, gap_open)))
+    while (RvvOps::anyBiggerElement(vF, RvvOps::add(vHStore, gap_open)))
     {
         vHStore = pvHStore[j].load();
-        vHStore = RvvReg::max(vHStore,vF);
+        vHStore = RvvOps::max(vHStore,vF);
         pvHStore[j].store(vHStore);
-        vMax = RvvReg::max(vMax,vHStore);
+        vMax = RvvOps::max(vMax,vHStore);
 
         j++;
-        vF = RvvReg::add(vF,gap_ext);
+        vF = RvvOps::add(vF,gap_ext);
 
         if (j >= segLen)
         {
-            vFCarry = RvvReg::lastElement(vF);
-            vF = RvvReg::shift(vF,vFCarry);
+            vFCarry = RvvOps::lastElement(vF);
+            vF = RvvOps::shift(vF,vFCarry);
             j = 0;
         }
     }
-    maxScore = std::max(maxScore,static_cast<int>(RvvReg::maxValue(vMax)));
+    maxScore = std::max(maxScore,static_cast<int>(RvvOps::maxValue(vMax)));
 
     // previousVH = vH;
     return maxScore;

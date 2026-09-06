@@ -1,8 +1,8 @@
-#ifndef RVV_VEC_HPP
-#define RVV_VEC_HPP
+#ifndef RVV_BUFFER_HPP
+#define RVV_BUFFER_HPP
 
 #include <riscv_vector.h>
-#include "RvvReg.hpp"
+#include "RvvOps.hpp"
 #include <iostream>
 
 #define ALWAYS_INLINE __attribute__((always_inline)) inline
@@ -104,7 +104,7 @@ struct RvvTraits<vint32m8_t> {
 
 
 template <typename VecType>
-class RvvVec{
+class RvvBuffer{
 
     using ElemType = typename RvvTraits<VecType>::ElemType;
 
@@ -121,16 +121,16 @@ class RvvVec{
 
     public:
 
-        ALWAYS_INLINE RvvVec(size_t vl, ElemType value = 0){
+        ALWAYS_INLINE RvvBuffer(size_t vl, ElemType value = 0){
             allocate(vl);
             if (lanes) {
 
-                VecType vec = RvvReg::set(value, vec);
+                VecType vec = RvvOps::set(value, vec);
                 RvvTraits<VecType>::store(lanes, vec, VL);
             }
         }
 
-        ALWAYS_INLINE RvvVec(const RvvVec& other) {
+        ALWAYS_INLINE RvvBuffer(const RvvBuffer& other) {
             allocate(other.VL);
             if (lanes && other.lanes) {
 
@@ -139,18 +139,18 @@ class RvvVec{
             }
         }
 
-        ALWAYS_INLINE RvvVec(RvvVec&& other) noexcept : lanes(other.lanes), VL(other.VL) {
+        ALWAYS_INLINE RvvBuffer(RvvBuffer&& other) noexcept : lanes(other.lanes), VL(other.VL) {
             other.lanes = nullptr;
             other.VL = 0;
         }
 
-        ALWAYS_INLINE ~RvvVec(){
+        ALWAYS_INLINE ~RvvBuffer(){
             if (lanes) {
                 free(lanes);
             }
         }
 
-        ALWAYS_INLINE RvvVec& operator=(const RvvVec& other) {
+        ALWAYS_INLINE RvvBuffer& operator=(const RvvBuffer& other) {
             if (this != &other) {
                 if (this->VL != other.VL) {
                     if (lanes){
@@ -166,7 +166,7 @@ class RvvVec{
             return *this;
         }
 
-        ALWAYS_INLINE RvvVec& operator=(RvvVec&& other) noexcept {
+        ALWAYS_INLINE RvvBuffer& operator=(RvvBuffer&& other) noexcept {
             if (this != &other) {
                 if (lanes) free(lanes);
                 lanes = other.lanes;
@@ -184,7 +184,7 @@ class RvvVec{
             return VL; 
         }
 
-        ALWAYS_INLINE void swap(RvvVec& other) noexcept{
+        ALWAYS_INLINE void swap(RvvBuffer& other) noexcept{
             std::swap(lanes, other.lanes);
             std::swap(VL, other.VL);
         }
