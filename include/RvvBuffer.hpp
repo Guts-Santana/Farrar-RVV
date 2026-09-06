@@ -80,7 +80,9 @@ struct RvvTraits<vint32m2_t> {
     }
 };
 
-template <>
+template <>    static ALWAYS_INLINE vint16m1_t slideup(vint16m1_t a, size_t offset) {
+        return __riscv_vslideup_vx_i16m1(a, a, offset, VL);
+    }
 struct RvvTraits<vint32m4_t> {
     using ElemType = int32_t;
     static ALWAYS_INLINE vint32m4_t load(const int32_t* ptr, size_t vl) {
@@ -206,4 +208,3 @@ class RvvBuffer{
 };
 
 #endif
-

@@ -131,31 +131,31 @@ int FarrarRvv<VecType>::processColumn(int column)
         vF = RvvOps::max(vF,vH);
         vH = pvHLoad[j].load();
     }
-    
+
+    //Prefix Scan F
+    int fCarry = RvvOps::lastElement(vF);
+    int accumulatedDecay;
     vF = RvvOps::shift(vF, 0);
-    size_t j = 0;
-    vHStore = pvHStore[j].load();
-    int vFCarry;
-    while (RvvOps::anyBiggerElement(vF, RvvOps::add(vHStore, gap_open)))
+
+    for (size_t offset = 1; offset < stripe_width; offset <<= 1) {
+        VecType vShift = RvvOps::slideup(vF, offset);
+        
+        accumulatedDecay = offset * gap_ext;
+        vShift = RvvOps::add(vShift, accumulatedDecay);
+    
+        vF = RvvOps::max(vF, vShift);
+    }
+
+    for (size_t j = 0; j < segLen; j++)
     {
         vHStore = pvHStore[j].load();
-        vHStore = RvvOps::max(vHStore,vF);
+        vHStore = RvvOps::max(vHStore, vF);
         pvHStore[j].store(vHStore);
-        vMax = RvvOps::max(vMax,vHStore);
-
-        j++;
-        vF = RvvOps::add(vF,gap_ext);
-
-        if (j >= segLen)
-        {
-            vFCarry = RvvOps::lastElement(vF);
-            vF = RvvOps::shift(vF,vFCarry);
-            j = 0;
-        }
+        vMax = RvvOps::max(vMax, vHStore);
+        vF = RvvOps::add(vF, gap_ext);
     }
-    maxScore = std::max(maxScore,static_cast<int>(RvvOps::maxValue(vMax)));
 
-    // previousVH = vH;
+    maxScore = std::max(maxScore, static_cast<int>(RvvOps::maxValue(vMax)));
     return maxScore;
 }
 
@@ -175,4 +175,3 @@ template class FarrarRvv<vint32m1_t>;
 template class FarrarRvv<vint32m2_t>;
 template class FarrarRvv<vint32m4_t>;
 template class FarrarRvv<vint32m8_t>;
-
