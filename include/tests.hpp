@@ -6,8 +6,7 @@
 #include <vector>
 #include <sys/resource.h>
 
-#include "Gotoh.hpp"
-#include "Farrar.hpp"
+#include "FarrarRvv.hpp"
 
 namespace fs = std::filesystem;
 
@@ -15,9 +14,8 @@ std::string readFasta(const fs::path& fastaPath);
 
 std::vector<fs::path> getFastaFiles(const fs::path& folder);
 
-void testScore(bool visual);
+void testTimeInt16();
 
-void testTime(bool visual);
+void testTimeInt32();
 
 
-void testFarrarTime(bool visual);

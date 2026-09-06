@@ -21,6 +21,15 @@ Scalar Farrar Function execution time: 2712.25 s
 Rvv Farrar Function execution time: 1016.45 s
 Gotoh Function execution time: 2401.67 s
 
+Folder: 150k
+Score: 18
+Scalar Farrar Function execution time: 23258.3 s
+Score: 18
+Rvv Farrar Function execution time: 3863.59 s
+Score: 18
+Gotoh Function execution time: 20472.1 s
+
+
 
 FarrarRvv - 16
 Folder: 10k
@@ -41,5 +50,161 @@ Farrar Function execution time: 299.127 s
 Folder: 50k
 Score: 52
 Farrar Function execution time: 451.142 s
+
+VLEN 2:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 16.2721 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 27.1157 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 279.547 s/
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 248.364 s
+
+VLEN 4:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 14.9357 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 14.8814 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 284.931 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 138.522 s
+
+VLEN 8:
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 18.6538 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 9.21764 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 335.206 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 85.0388 s
+
+Stripe: 16
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 21.3916 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 52.4145 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 308.446 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 476.73 s
+
+Stripe: 32
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 16.2833 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 27.2109 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 278.377 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 246.973 s
+
+Folder: 150k
+Score: 18
+Farrar Function execution time: 2106.17 s
+
+
+Stripe: 64
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 14.8215 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 14.8679 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 283.515 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 138.268 s
+
+
+Folder: 150k
+Score: 18
+Farrar Function execution time: 1196.73 s
+
+
+Stripe: 128
+Folder: 10k
+Score: 5091
+Farrar Function execution time: 16.2125 s
+
+
+Folder: 18k
+Score: 119
+Farrar Function execution time: 9.15808 s
+
+
+Folder: 30k
+Score: 29221
+Farrar Function execution time: 328.554 s
+
+
+Folder: 50k
+Score: 52
+Farrar Function execution time: 83.9595 s
+
+
+Folder: 150k
+Score: 18
+Farrar Function execution time: 718.544 s
 
 

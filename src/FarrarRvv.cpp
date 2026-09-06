@@ -1,26 +1,30 @@
 #include "FarrarRvv.hpp"
 
-void FarrarRvv::setSequences(std::string s0, std::string s1){
+size_t RvvReg::VL = 16;
+
+template <typename VecType>
+void FarrarRvv<VecType>::setSequences(std::string s0, std::string s1){
     this->s0 = s0;
     this->s1 = s1;
 }
 
-
-void FarrarRvv::call(bool visual)
+template <typename VecType>
+void FarrarRvv<VecType>::call(bool visual)
 {
     
     std::cout << "Score: " << obtainScore() << '\n';
     if (visual){
-        printHMatrix();
+        //printHMatrix();
     }
     
 }
 
-int FarrarRvv::obtainScore(){
+template <typename VecType>
+int FarrarRvv<VecType>::obtainScore(){
 
+    RvvReg::setVL(stripe_width);
     initMatrices();
     buildProfile();
-    RvvReg::setVL(16);
     for (int i = 0; i < s1.length(); i++)
     {
         processColumn(i);
@@ -29,79 +33,73 @@ int FarrarRvv::obtainScore(){
     return maxScore;
 }
 
-void FarrarRvv::buildProfile(){
+template <typename VecType>
+void FarrarRvv<VecType>::buildProfile(){
+    size_t total_blocks = 5 * segLen;
 
-    for (auto& RvvVec : vProfile) {
-        RvvVec.clear();
+    if (vProfile){
+        free(vProfile);
     }
 
-    for(char residue : alphabet)
-    {
-        std::vector<RvvVec> profile(segLen);
-        for(int i = 0; i < segLen; i++)
-        {
-            RvvVec scoreRvvVec(0);
-            for(int j = 0; j < stripe_width; j++)
-            {
-                int idx = j * segLen + i;
-                if(idx >= s0.length())
-                {
-                    scoreRvvVec[j] = 0;
-                }
-		else
-                scoreRvvVec[j] = (s0[idx] == residue) ? match : mismatch;
+    posix_memalign((void**)&vProfile, 64, total_blocks * sizeof(RvvVec<VecType>));
+
+    for (size_t k = 0; k < total_blocks; ++k) {
+        new (&vProfile[k]) RvvVec<VecType>(stripe_width, 0);
+    }
+
+    for (char residue : alphabet) {
+        int resIdx = charToIndex(residue);
+        if (resIdx == -1) continue;
+
+        size_t baseOffset = static_cast<size_t>(resIdx) * segLen;
+
+        for (size_t i = 0; i < segLen; i++) {
+            RvvVec<VecType> scoreVec(stripe_width, 0);
+            for (size_t j = 0; j < stripe_width; j++) {
+                size_t idx = j * segLen + i;
+                scoreVec[j] = (idx < s0.length() && s0[idx] == residue) ? match : mismatch;
             }
-
-
-            profile[i] = scoreRvvVec;
-            
+            vProfile[baseOffset + i] = scoreVec;
         }
-        vProfile[charToIndex(residue)] = profile;
-
-
     }
-
 }
 
-void FarrarRvv::initMatrices(){
-    maxScore = 0;
-
+template <typename VecType>
+void FarrarRvv<VecType>::initMatrices(){
     segLen = (s0.length() + stripe_width - 1) / stripe_width;
 
-    pvHStore.clear();
-    pvHLoad.clear();
-    pvE.clear();
+    clearData();
 
-    pvHStore.resize(segLen, RvvVec(0));
-    pvHLoad.resize(segLen, RvvVec(0));
-    pvE.resize(segLen, RvvVec(0));
+    posix_memalign((void**)&pvHStore, 64, segLen * sizeof(RvvVec<VecType>));
+    posix_memalign((void**)&pvHLoad,  64, segLen * sizeof(RvvVec<VecType>));
+    posix_memalign((void**)&pvE,      64, segLen * sizeof(RvvVec<VecType>));
 
-    for (int i = 0; i < segLen; i++)
-    {
-        for (int j = 0; j < stripe_width; j++)
-        {
-            pvHStore[i][j] = 0;
-            pvHLoad[i][j]  = 0;
-
-            pvE[i][j] = 0;
-        }
+    for (size_t j = 0; j < segLen; ++j) {
+        new (&pvHStore[j]) RvvVec<VecType>(stripe_width, 0);
+        new (&pvHLoad[j])  RvvVec<VecType>(stripe_width, 0);
+        new (&pvE[j])      RvvVec<VecType>(stripe_width, 0);
     }
 }
 
-int16_t FarrarRvv::processColumn(int column)
+
+template <typename VecType>
+int FarrarRvv<VecType>::processColumn(int column)
 {
-    vint16m1_t vF = RvvReg::set(0);
-    vint16m1_t vE;
-    vint16m1_t vMax = RvvReg::set(0);
-    vint16m1_t vH = pvHStore[segLen - 1].load();
+    VecType dummy;
+    VecType vF = RvvReg::set(0, dummy);
+    VecType vE;
+    VecType vMax = RvvReg::set(0, dummy);
+    VecType vH = pvHStore[segLen - 1].load();
+    VecType vHStore; 
     vH = RvvReg::shift(vH,0);
 
-    vint16m1_t vProfileTemp;
+    VecType vProfileTemp;
 
 
-    pvHStore.swap(pvHLoad);
+    std::swap(pvHStore, pvHLoad);
 
     int profileIndex = charToIndex(s1[column]);
+    int baseIndex = profileIndex * segLen;
 
     for (int j = 0; j < segLen; j++)
     {
@@ -109,7 +107,8 @@ int16_t FarrarRvv::processColumn(int column)
 		vH = RvvReg::add(vH,mismatch);
 	}
 	else{
-        vProfileTemp = vProfile[profileIndex][j].load();
+        
+        vProfileTemp = vProfile[baseIndex + j].load();
        	vH = RvvReg::add(vH, vProfileTemp);
 	}
         vE = pvE[j].load();
@@ -135,8 +134,8 @@ int16_t FarrarRvv::processColumn(int column)
     
     vF = RvvReg::shift(vF, 0);
     size_t j = 0;
-    vint16m1_t vHStore = pvHStore[j].load();
-    int16_t vFCarry;
+    vHStore = pvHStore[j].load();
+    int vFCarry;
     while (RvvReg::anyBiggerElement(vF, RvvReg::add(vHStore, gap_open)))
     {
         vHStore = pvHStore[j].load();
@@ -154,48 +153,26 @@ int16_t FarrarRvv::processColumn(int column)
             j = 0;
         }
     }
-    maxScore = std::max(maxScore,RvvReg::maxValue(vMax));
-    // HHistory.push_back(pvHStore);
+    maxScore = std::max(maxScore,static_cast<int>(RvvReg::maxValue(vMax)));
 
     // previousVH = vH;
     return maxScore;
 }
 
-void FarrarRvv::printHMatrix(){
-
-    std::cout << "\nH Matrix (striped)\n\n";
-
-    std::cout << "     ";
-    for (char c : s1)
-        std::cout << std::setw(4) << c;
-    std::cout << '\n';
-
-    for (size_t row = 0; row < s0.size(); row++)
-    {
-        std::cout << std::setw(4) << s0[row] << " ";
-
-        int seg = row % segLen;
-        int lane = row / segLen;
-
-        for (size_t col = 0; col < s1.size(); col++)
-        {
-            std::cout << std::setw(4)
-                    << HHistory[col][seg][lane];
-        }
-
-        std::cout << '\n';
-    }
+template <typename VecType>
+void FarrarRvv<VecType>::clearData(){
+    if (pvHStore) { free(pvHStore); pvHStore = nullptr; }
+    if (pvHLoad)  { free(pvHLoad);  pvHLoad  = nullptr; }
+    if (pvE)      { free(pvE);      pvE      = nullptr; }
 }
 
-void FarrarRvv::clearData(){
-    maxScore = 0;
-    pvHStore.clear();
-    pvHLoad.clear();
-    pvE.clear();
-    HHistory.clear();
-    // previousVH = ScalarRvvVec();
-    for (auto &profileRvvVec : vProfile)
-    {
-        profileRvvVec.clear();
-    }
-}
+template class FarrarRvv<vint16m1_t>;
+template class FarrarRvv<vint16m2_t>;
+template class FarrarRvv<vint16m4_t>;
+template class FarrarRvv<vint16m8_t>;
+
+template class FarrarRvv<vint32m1_t>;
+template class FarrarRvv<vint32m2_t>;
+template class FarrarRvv<vint32m4_t>;
+template class FarrarRvv<vint32m8_t>;
+
