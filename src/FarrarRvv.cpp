@@ -1,5 +1,4 @@
 #include "FarrarRvv.hpp"
-#include <chrono>
 
 size_t RvvOps::VL = 16;
 
