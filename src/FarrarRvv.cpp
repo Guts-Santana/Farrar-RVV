@@ -25,11 +25,12 @@ int FarrarRvv<VecType>::obtainScore(){
     RvvOps::setVL(stripe_width);
     initMatrices();
     buildProfile();
+    VecType vMaxBlock = RvvTraits<VecType>::set(0, stripe_width);
     for (int i = 0; i < s1.length(); i++)
     {
-        processColumn(i);
+        vMaxBlock = RvvOps::max(vMaxBlock, processColumn(i));
     }
-    
+    maxScore = static_cast<int>(RvvOps::maxValue(vMaxBlock));
     return maxScore;
 }
 
@@ -83,13 +84,12 @@ void FarrarRvv<VecType>::initMatrices(){
 
 
 template <typename VecType>
-int FarrarRvv<VecType>::processColumn(int column)
+VecType FarrarRvv<VecType>::processColumn(int column)
 {
     VecType vF = RvvTraits<VecType>::set(0, stripe_width);
     VecType vE;
     VecType vMax = RvvTraits<VecType>::set(0, stripe_width);
     VecType vH = pvHStore[segLen - 1].load();
-    VecType vProfileTemp;
     vH = RvvOps::shift(vH,0);
 
     std::swap(pvHStore, pvHLoad);
@@ -103,8 +103,7 @@ int FarrarRvv<VecType>::processColumn(int column)
             vH = RvvOps::add(vH,mismatch);
 	    }
         else{
-            
-            vProfileTemp = vProfile[baseIndex + j].load();
+            VecType vProfileTemp = vProfile[baseIndex + j].load();
             vH = RvvOps::add(vH, vProfileTemp);
         }
         vE = pvE[j].load();
@@ -150,8 +149,8 @@ int FarrarRvv<VecType>::processColumn(int column)
         vF = RvvOps::add(vF, gap_ext);
     }
 
-    maxScore = std::max(maxScore, static_cast<int>(RvvOps::maxValue(vMax)));
-    return maxScore;
+    // maxScore = std::max(maxScore, static_cast<int>(RvvOps::maxValue(vMax)));
+    return vMax;
 }
 
 template <typename VecType>
