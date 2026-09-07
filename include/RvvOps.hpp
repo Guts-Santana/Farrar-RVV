@@ -1,7 +1,6 @@
 #ifndef RVV_OPS_HPP
 #define RVV_OPS_HPP
 
-#include "constants.hpp"
 #include <riscv_vector.h>
 #include <iostream>
 
@@ -21,7 +20,7 @@ class RvvOps{
             return VL;
         }
 
-        // =========================================================================
+    // =========================================================================
     // LMUL = 1 (m1)
     // =========================================================================
 
@@ -56,13 +55,13 @@ class RvvOps{
         return __riscv_vslide1up_vx_i16m1(a, carry, VL);
     }
 
+    static ALWAYS_INLINE vint16m1_t slideup(vint16m1_t a, size_t offset) {
+        return __riscv_vslideup_vx_i16m1(a, a, offset, VL);
+    }
+
     static ALWAYS_INLINE int16_t lastElement(vint16m1_t a) {
         vint16m1_t tmp = __riscv_vslidedown_vx_i16m1(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m1_i16(tmp);
-    }
-
-    static ALWAYS_INLINE vint16m1_t set(int16_t value, vint16m1_t) {
-        return __riscv_vmv_v_x_i16m1(value, VL);
     }
 
     // =========================================================================
@@ -100,16 +99,14 @@ class RvvOps{
         return __riscv_vslide1up_vx_i32m1(a, carry, VL);
     }
 
+    static ALWAYS_INLINE vint32m1_t slideup(vint32m1_t a, size_t offset) {
+        return __riscv_vslideup_vx_i32m1(a, a, offset, VL);
+    }
+
     static ALWAYS_INLINE int32_t lastElement(vint32m1_t a) {
         vint32m1_t tmp = __riscv_vslidedown_vx_i32m1(a, VL - 1, VL);
         return __riscv_vmv_x_s_i32m1_i32(tmp);
     }
-
-    static ALWAYS_INLINE vint32m1_t set(int32_t value, vint32m1_t) {
-        return __riscv_vmv_v_x_i32m1(value, VL);
-    }
-
-
 
     // =========================================================================
     // LMUL = 2 (m2)
@@ -145,12 +142,12 @@ class RvvOps{
     static ALWAYS_INLINE vint16m2_t shift(vint16m2_t a, int16_t carry) {
         return __riscv_vslide1up_vx_i16m2(a, carry, VL);
     }
+    static ALWAYS_INLINE vint16m2_t slideup(vint16m2_t a, size_t offset) {
+        return __riscv_vslideup_vx_i16m2(a, a, offset, VL);
+    }
     static ALWAYS_INLINE int16_t lastElement(vint16m2_t a) {
         vint16m2_t tmp = __riscv_vslidedown_vx_i16m2(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m2_i16(tmp);
-    }
-    static ALWAYS_INLINE vint16m2_t set(int16_t value, vint16m2_t) {
-        return __riscv_vmv_v_x_i16m2(value, VL);
     }
 
     // =========================================================================
@@ -187,14 +184,13 @@ class RvvOps{
     static ALWAYS_INLINE vint32m2_t shift(vint32m2_t a, int32_t carry) {
         return __riscv_vslide1up_vx_i32m2(a, carry, VL);
     }
+    static ALWAYS_INLINE vint32m2_t slideup(vint32m2_t a, size_t offset) {
+        return __riscv_vslideup_vx_i32m2(a, a, offset, VL);
+    }
 
     static ALWAYS_INLINE int32_t lastElement(vint32m2_t a) {
         vint32m2_t tmp = __riscv_vslidedown_vx_i32m2(a, VL - 1, VL);
         return __riscv_vmv_x_s_i32m2_i32(tmp);
-    }
-
-    static ALWAYS_INLINE vint32m2_t set(int32_t value, vint32m2_t) {
-        return __riscv_vmv_v_x_i32m2(value, VL);
     }
 
     // =========================================================================
@@ -225,12 +221,13 @@ class RvvOps{
     static ALWAYS_INLINE vint16m4_t shift(vint16m4_t a, int16_t carry) {
         return __riscv_vslide1up_vx_i16m4(a, carry, VL);
     }
+    static ALWAYS_INLINE vint16m4_t slideup(vint16m4_t a, size_t offset) {
+        return __riscv_vslideup_vx_i16m4(a, a, offset, VL);
+    }
+
     static ALWAYS_INLINE int16_t lastElement(vint16m4_t a) {
         vint16m4_t tmp = __riscv_vslidedown_vx_i16m4(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m4_i16(tmp);
-    }
-    static ALWAYS_INLINE vint16m4_t set(int16_t value, vint16m4_t) {
-        return __riscv_vmv_v_x_i16m4(value, VL);
     }
 
     // =========================================================================
@@ -267,14 +264,13 @@ class RvvOps{
     static ALWAYS_INLINE vint32m4_t shift(vint32m4_t a, int32_t carry) {
         return __riscv_vslide1up_vx_i32m4(a, carry, VL);
     }
+    static ALWAYS_INLINE vint32m4_t slideup(vint32m4_t a, size_t offset) {
+        return __riscv_vslideup_vx_i32m4(a, a, offset, VL);
+    }
 
     static ALWAYS_INLINE int32_t lastElement(vint32m4_t a) {
         vint32m4_t tmp = __riscv_vslidedown_vx_i32m4(a, VL - 1, VL);
         return __riscv_vmv_x_s_i32m4_i32(tmp);
-    }
-
-    static ALWAYS_INLINE vint32m4_t set(int32_t value, vint32m4_t) {
-        return __riscv_vmv_v_x_i32m4(value, VL);
     }
 
     // =========================================================================
@@ -305,12 +301,13 @@ class RvvOps{
     static ALWAYS_INLINE vint16m8_t shift(vint16m8_t a, int16_t carry) {
         return __riscv_vslide1up_vx_i16m8(a, carry, VL);
     }
+    static ALWAYS_INLINE vint16m8_t slideup(vint16m8_t a, size_t offset) {
+        return __riscv_vslideup_vx_i16m8(a, a, offset, VL);
+    }
+
     static ALWAYS_INLINE int16_t lastElement(vint16m8_t a) {
         vint16m8_t tmp = __riscv_vslidedown_vx_i16m8(a, VL - 1, VL);
         return __riscv_vmv_x_s_i16m8_i16(tmp);
-    }
-    static ALWAYS_INLINE vint16m8_t set(int16_t value, vint16m8_t) {
-        return __riscv_vmv_v_x_i16m8(value, VL);
     }
 
     // =========================================================================
@@ -347,17 +344,13 @@ class RvvOps{
     static ALWAYS_INLINE vint32m8_t shift(vint32m8_t a, int32_t carry) {
         return __riscv_vslide1up_vx_i32m8(a, carry, VL);
     }
-
+    static ALWAYS_INLINE vint32m8_t slideup(vint32m8_t a, size_t offset) {
+        return __riscv_vslideup_vx_i32m8(a, a, offset, VL);
+    }
     static ALWAYS_INLINE int32_t lastElement(vint32m8_t a) {
         vint32m8_t tmp = __riscv_vslidedown_vx_i32m8(a, VL - 1, VL);
         return __riscv_vmv_x_s_i32m8_i32(tmp);
     }
-
-    static ALWAYS_INLINE vint32m8_t set(int32_t value, vint32m8_t) {
-        return __riscv_vmv_v_x_i32m8(value, VL);
-    }
-    
 };
 
 #endif
-

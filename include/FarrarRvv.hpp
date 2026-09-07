@@ -10,6 +10,8 @@
 
 #include "RvvBuffer.hpp"
 #include "RvvOps.hpp"
+#include "RvvTraits.hpp"
+
 
 template <typename VecType>
 class FarrarRvv
@@ -38,6 +40,10 @@ class FarrarRvv
 
     public:
     FarrarRvv(std::string s0, std::string s1, size_t stripe_width) :  maxScore(0), s0(s0), s1(s1), stripe_width(stripe_width){
+        size_t maxVL = RvvTraits<VecType>::maxVL();
+        if (stripe_width > maxVL){
+            this->stripe_width = maxVL;
+        }
         this->segLen = (s0.length() + stripe_width - 1)/stripe_width;        
     }
 

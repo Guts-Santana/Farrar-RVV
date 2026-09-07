@@ -85,10 +85,9 @@ void FarrarRvv<VecType>::initMatrices(){
 template <typename VecType>
 int FarrarRvv<VecType>::processColumn(int column)
 {
-    VecType dummy;
-    VecType vF = RvvOps::set(0, dummy);
+    VecType vF = RvvTraits<VecType>::set(0, stripe_width);
     VecType vE;
-    VecType vMax = RvvOps::set(0, dummy);
+    VecType vMax = RvvTraits<VecType>::set(0, stripe_width);
     VecType vH = pvHStore[segLen - 1].load();
     VecType vHStore; 
     vH = RvvOps::shift(vH,0);
@@ -132,6 +131,7 @@ int FarrarRvv<VecType>::processColumn(int column)
         vH = pvHLoad[j].load();
     }
     
+    // Lazy F
     vF = RvvOps::shift(vF, 0);
     size_t j = 0;
     vHStore = pvHStore[j].load();
