@@ -1,4 +1,5 @@
 #include "FarrarRvv.hpp"
+#include <chrono>
 
 size_t RvvOps::VL = 16;
 
@@ -36,11 +37,8 @@ int FarrarRvv<VecType>::obtainScore(){
 
 template <typename VecType>
 void FarrarRvv<VecType>::buildProfile(){
+    
     size_t total_blocks = 5 * segLen;
-
-    if (vProfile){
-        free(vProfile);
-    }
 
     posix_memalign((void**)&vProfile, 64, total_blocks * sizeof(RvvBuffer<VecType>));
 
@@ -67,9 +65,8 @@ void FarrarRvv<VecType>::buildProfile(){
 
 template <typename VecType>
 void FarrarRvv<VecType>::initMatrices(){
-    segLen = (s0.length() + stripe_width - 1) / stripe_width;
-
     clearData();
+    segLen = (s0.length() + stripe_width - 1) / stripe_width;
 
     posix_memalign((void**)&pvHStore, 64, segLen * sizeof(RvvBuffer<VecType>));
     posix_memalign((void**)&pvHLoad,  64, segLen * sizeof(RvvBuffer<VecType>));
@@ -155,9 +152,18 @@ VecType FarrarRvv<VecType>::processColumn(int column)
 
 template <typename VecType>
 void FarrarRvv<VecType>::clearData(){
-    if (pvHStore) { free(pvHStore); pvHStore = nullptr; }
-    if (pvHLoad)  { free(pvHLoad);  pvHLoad  = nullptr; }
-    if (pvE)      { free(pvE);      pvE      = nullptr; }
+    if (pvHStore) {
+        for (size_t j = 0; j < segLen; ++j) {
+            pvHStore[j].~RvvBuffer();
+            pvHLoad[j].~RvvBuffer();
+            pvE[j].~RvvBuffer();
+            vProfile[j].~RvvBuffer<VecType>();
+        }
+        free(pvHStore); pvHStore = nullptr;
+        free(pvHLoad);  pvHLoad  = nullptr;
+        free(pvE);      pvE      = nullptr;
+        free(vProfile); vProfile = nullptr;
+    }
 }
 
 template class FarrarRvv<vint16m1_t>;
