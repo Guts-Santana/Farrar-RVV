@@ -27,7 +27,7 @@ $(BIN)/ScalarVec.o: $(SRC)/ScalarVec.cpp $(INC)/ScalarVec.hpp ${INC}/constants.h
 $(BIN)/tests.o: $(SRC)/tests.cpp $(INC)/tests.hpp
 	$(CC) $(CFLAGS) -c $(SRC)/tests.cpp -o $(BIN)/tests.o
 
-$(BIN)/FarrarRvv.o: $(SRC)/FarrarRvv.cpp $(INC)/FarrarRvv.hpp ${INC}/constants.hpp $(INC)/RvvBuffer.hpp $(INC)/RvvOps.hpp
+$(BIN)/FarrarRvv.o: $(SRC)/FarrarRvv.cpp $(INC)/FarrarRvv.hpp ${INC}/constants.hpp $(INC)/RvvBuffer.hpp $(INC)/RvvTraits.hpp $(INC)/RvvOps.hpp
 	$(CC) $(CFLAGS) -c $(SRC)/FarrarRvv.cpp -o $(BIN)/FarrarRvv.o
 
 clean:

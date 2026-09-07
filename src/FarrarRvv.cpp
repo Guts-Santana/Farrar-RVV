@@ -85,16 +85,12 @@ void FarrarRvv<VecType>::initMatrices(){
 template <typename VecType>
 int FarrarRvv<VecType>::processColumn(int column)
 {
-    VecType dummy;
-    VecType vF = RvvOps::set(0, dummy);
+    VecType vF = RvvTraits<VecType>::set(0, stripe_width);
     VecType vE;
-    VecType vMax = RvvOps::set(0, dummy);
+    VecType vMax = RvvTraits<VecType>::set(0, stripe_width);
     VecType vH = pvHStore[segLen - 1].load();
-    VecType vHStore; 
-    vH = RvvOps::shift(vH,0);
-
     VecType vProfileTemp;
-
+    vH = RvvOps::shift(vH,0);
 
     std::swap(pvHStore, pvHLoad);
 
@@ -103,14 +99,14 @@ int FarrarRvv<VecType>::processColumn(int column)
 
     for (int j = 0; j < segLen; j++)
     {
-	if (profileIndex == -1){
-		vH = RvvOps::add(vH,mismatch);
-	}
-	else{
-        
-        vProfileTemp = vProfile[baseIndex + j].load();
-       	vH = RvvOps::add(vH, vProfileTemp);
-	}
+        if (profileIndex == -1){
+            vH = RvvOps::add(vH,mismatch);
+	    }
+        else{
+            
+            vProfileTemp = vProfile[baseIndex + j].load();
+            vH = RvvOps::add(vH, vProfileTemp);
+        }
         vE = pvE[j].load();
 
         vH = RvvOps::max(vH,vE);
@@ -133,7 +129,6 @@ int FarrarRvv<VecType>::processColumn(int column)
     }
 
     //Prefix Scan F
-    int fCarry = RvvOps::lastElement(vF);
     int accumulatedDecay;
     vF = RvvOps::shift(vF, 0);
 
@@ -148,10 +143,10 @@ int FarrarRvv<VecType>::processColumn(int column)
 
     for (size_t j = 0; j < segLen; j++)
     {
-        vHStore = pvHStore[j].load();
-        vHStore = RvvOps::max(vHStore, vF);
-        pvHStore[j].store(vHStore);
-        vMax = RvvOps::max(vMax, vHStore);
+        vH = pvHStore[j].load();
+        vH = RvvOps::max(vH, vF);
+        pvHStore[j].store(vH);
+        vMax = RvvOps::max(vMax, vH);
         vF = RvvOps::add(vF, gap_ext);
     }
 
