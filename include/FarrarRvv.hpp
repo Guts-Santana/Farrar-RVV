@@ -57,7 +57,7 @@ class FarrarRvv
 
     void initMatrices();
 
-    int processColumn(int column);
+    VecType processColumn(int column);
 
     int obtainScore();
 
