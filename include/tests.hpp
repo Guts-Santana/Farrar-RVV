@@ -22,4 +22,9 @@ void testTimeInt32();
 
 void testScalar();
 
+template <typename VecType>
+void runBenchmark(std::ofstream& outFile,const std::string& seq0,
+                const std::string& seq1, int lmul, int stripeWidth,
+                int executions);
+
 

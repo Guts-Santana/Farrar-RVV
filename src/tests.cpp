@@ -49,139 +49,53 @@ std::vector<fs::path> getFastaFiles(const fs::path& folder)
 }
 
 
-void testTimeInt16(){
+void testTimeInt16() {
+    std::string folderPath = "tests";
+    if (!fs::exists(folderPath)) fs::create_directory(folderPath);
+
+    std::ofstream outFile(folderPath + "/benchmark_lazyF_int16.txt");
+    if (!outFile.is_open()) return;
+
+    outFile << "INT16:\n";
+    std::cout << "INT16:\n";
     std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
-        std::cout << "INT16: " << '\n';
-    for (size_t i = 0; i < folders.size(); i++)
-    {
-        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
+
+    for (const auto& folder : folders) {
+        auto fastaFiles = getFastaFiles("Sequences/" + folder);
         std::string seq0 = readFasta(fastaFiles[0]);
         std::string seq1 = readFasta(fastaFiles[1]);
-	    int score;
-        std::cout << "Folder: " << folders[i] << '\n';
-        auto end = std::chrono::high_resolution_clock::now();
-        auto start = std::chrono::high_resolution_clock::now();
 
-        // LMUL = 1 (16 elements per vector register)
-        std::cout << "LMUL: 1" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint16m1_t> alignerm1(seq0, seq1, 16);
-        score = alignerm1.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm1.clearData();
+        std::cout << "Folder: " << folder << "\n\n";
+        outFile << "Folder: " << folder << "\n\n";
 
-        std::chrono::duration<double, std::milli> duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 2 (32 elements per vector register group)
-        std::cout << "LMUL: 2" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint16m2_t> alignerm2(seq0, seq1, 32);
-        score = alignerm2.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm2.clearData();
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 4 (64 elements per vector register group)
-        std::cout << "LMUL: 4" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint16m4_t> alignerm4(seq0, seq1, 64);
-        score = alignerm4.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm4.clearData();
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 8 (128 elements per vector register group)
-        std::cout << "LMUL: 8" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint16m8_t> alignerm8(seq0, seq1, 128);
-        score = alignerm8.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm8.clearData();
-
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
+        runBenchmark<vint16m1_t>(outFile, seq0, seq1, 1, 16, 5);
+        runBenchmark<vint16m2_t>(outFile, seq0, seq1, 2, 32, 5);
+        runBenchmark<vint16m4_t>(outFile, seq0, seq1, 4, 64, 5);
+        runBenchmark<vint16m8_t>(outFile, seq0, seq1, 8, 128, 5);
     }
 }
 
-void testTimeInt32(){
+void testTimeInt32() {
+    std::string folderPath = "tests";
+    if (!fs::exists(folderPath)) fs::create_directory(folderPath);
+
+    std::ofstream outFile(folderPath + "/benchmark_lazyF_int32.txt");
+    if (!outFile.is_open()) return;
+
+    outFile << "INT32:\n";
     std::vector<std::string> folders = {"10k", "18k", "30k", "50k", "150k"};
-        std::cout << "INT32: " << '\n';
-    for (size_t i = 0; i < folders.size(); i++)
-    {
-        auto fastaFiles = getFastaFiles("Sequences/"+folders[i]);
+
+    for (const auto& folder : folders) {
+        auto fastaFiles = getFastaFiles("Sequences/" + folder);
         std::string seq0 = readFasta(fastaFiles[0]);
         std::string seq1 = readFasta(fastaFiles[1]);
-	    int score;
-        std::cout << "Folder: " << folders[i] << '\n';
-        auto end = std::chrono::high_resolution_clock::now();
-        auto start = std::chrono::high_resolution_clock::now();
 
-        // LMUL = 1 (16 elements per vector register)
-        std::cout << "LMUL: 1" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint32m1_t> alignerm1(seq0, seq1, 8);
-        score = alignerm1.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm1.clearData();
+        std::cout << "Benchmarking INT32 - Folder: " << folder << std::endl;
 
-        std::chrono::duration<double, std::milli> duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 2 (32 elements per vector register group)
-        std::cout << "LMUL: 2" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint32m2_t> alignerm2(seq0, seq1, 16);
-        score = alignerm2.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm2.clearData();
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 4 (64 elements per vector register group)
-        std::cout << "LMUL: 4" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint32m4_t> alignerm4(seq0, seq1, 32);
-        score = alignerm4.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm4.clearData();
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
-
-        // LMUL = 8 (128 elements per vector register group)
-        std::cout << "LMUL: 8" << '\n';
-        start = std::chrono::high_resolution_clock::now();
-        FarrarRvv<vint32m8_t> alignerm8(seq0, seq1, 64);
-        score = alignerm8.obtainScore();
-        end = std::chrono::high_resolution_clock::now();
-        alignerm8.clearData();
-
-
-        duration = end - start;
-	    std::cout << "Score: " << score << '\n'; 
-        std::cout << "Farrar Function execution time: " << duration.count()/1000 << " s\n";
-        std::cout << '\n' << '\n';
+        runBenchmark<vint32m1_t>(outFile, seq0, seq1, 1, 8, 5);
+        runBenchmark<vint32m2_t>(outFile, seq0, seq1, 2, 16, 5);
+        runBenchmark<vint32m4_t>(outFile, seq0, seq1, 4, 32, 5);
+        runBenchmark<vint32m8_t>(outFile, seq0, seq1, 8, 64, 5);
     }
 }
 
@@ -220,4 +134,37 @@ void testScalar(){
         std::cout << "Gotoh Function execution time: " << duration.count()/1000 << " s\n";
         std::cout << '\n' << '\n';
     }
+}
+
+template <typename VecType>
+void runBenchmark(std::ofstream& outFile, const std::string& seq0,
+                const std::string& seq1, int lmul, int stripeWidth,
+                int executions) {
+    outFile << "LMUL " << lmul << ":\n";
+    std::cout << "LMUL " << lmul << ":\n";
+
+    double totalTime = 0.0;
+
+    for (int j = 0; j < executions; ++j) {
+        auto start = std::chrono::high_resolution_clock::now();
+        
+        FarrarRvv<VecType> aligner(seq0, seq1, stripeWidth);
+        int score = aligner.obtainScore();
+        
+        auto end = std::chrono::high_resolution_clock::now();
+        aligner.clearData();
+
+        std::chrono::duration<double> duration = end - start;
+        double seconds = duration.count();
+        totalTime += seconds;
+
+        outFile << "Execution " << j+1 << "\nScore: " << score << "\nTime: " << seconds << "s\n\n";
+        std::cout << "Execution " << j+1 << "\nScore: " << score << "\nTime: " << seconds << "s\n\n";
+        outFile.flush();
+
+    }
+
+    outFile << "Media of " << executions << " executions: " << (totalTime / executions) << " s\n\n\n";
+    std::cout << "Media of " << executions << " executions: " << (totalTime / executions) << " s\n\n\n";
+    outFile.flush();
 }
